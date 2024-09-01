@@ -1,6 +1,7 @@
 import pygame
 from menu import *
 from pygame import mixer
+from gameworld import GameWorld
 
 class Game():
     def __init__(self):
