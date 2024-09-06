@@ -35,7 +35,7 @@ class MainMenu(Menu):
         
     # displays the menu while the game is still running
     def display_menu(self):
-        self.backgroundimage = pygame.image.load('assets/ACHoFe2GPYzlyWtFHaxnTxKvVnruOsDr.jpg.webp')
+        self.backgroundimage = pygame.image.load('ACHoFe2GPYzlyWtFHaxnTxKvVnruOsDr.jpg.webp')
         self.run_display = True
         while self.run_display:
             self.game.check_events()

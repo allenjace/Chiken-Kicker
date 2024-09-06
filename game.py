@@ -12,12 +12,12 @@ class Game():
         self.display = pygame.Surface ((self.DISPLAY_W, self.DISPLAY_H))
         self.window = pygame.display.set_mode (((self.DISPLAY_W, self.DISPLAY_H)))
         pygame.display.set_caption('Chicken Kicker')
-        self.font_name = 'assets/Commodore Pixelized v1.2.ttf'
+        self.font_name = 'Commodore Pixelized v1.2.ttf'
         self.main_menu = MainMenu(self)
         self.options = OptionsMenu(self)
         self.credits = CreditsMenu(self)
         self.curr_menu = self.main_menu
-        mixer.music.load('assets/Kevin MacLeod - Pixelland  NO COPYRIGHT 8-bit Music.mp3')
+        mixer.music.load('Kevin MacLeod - Pixelland  NO COPYRIGHT 8-bit Music.mp3')
         mixer.music.play(1)
 
     def game_loop(self):
