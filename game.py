@@ -6,13 +6,13 @@ from gameworld import GameWorld
 class Game():
     def __init__(self):
         pygame.init()
+        pygame.display.set_caption('Chicken Kicker')
+        self.font_name = 'Commodore Pixelized v1.2.ttf'
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY = False, False, False, False
         self.DISPLAY_W, self.DISPLAY_H = 1270, 720
         self.display = pygame.Surface ((self.DISPLAY_W, self.DISPLAY_H))
         self.window = pygame.display.set_mode (((self.DISPLAY_W, self.DISPLAY_H)))
-        pygame.display.set_caption('Chicken Kicker')
-        self.font_name = 'Commodore Pixelized v1.2.ttf'
         self.main_menu = MainMenu(self)
         self.options = OptionsMenu(self)
         self.credits = CreditsMenu(self)
