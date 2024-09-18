@@ -23,7 +23,7 @@ class Game():
         self.curr_menu = self.main_menu
 
         # loads and plays music
-        self.musicpath = (os.path.join('/Users/allenjace/Desktop/Chiken Kicker/assets/music','Kevin MacLeod - Pixelland  NO COPYRIGHT 8-bit Music.mp3'))
+        self.musicpath = (os.path.join('/Users/allenjace/Desktop/Chiken Kicker/','Kevin MacLeod - Pixelland  NO COPYRIGHT 8-bit Music.mp3'))
         mixer.music.load(self.musicpath)
         mixer.music.play(1)
 
