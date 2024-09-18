@@ -41,7 +41,7 @@ class MainMenu(Menu):
         
     # displays the menu while the game is still running
     def display_menu(self):
-        self.backgroundpath =(os.path.join('/Users/allenjace/Desktop/Chiken Kicker/assets/images/','ACHoFe2GPYzlyWtFHaxnTxKvVnruOsDr.jpg.webp'))
+        self.backgroundpath =(os.path.join('/Users/allenjace/Desktop/Chiken Kicker/','ACHoFe2GPYzlyWtFHaxnTxKvVnruOsDr.jpg.webp'))
         self.backgroundimage = pygame.image.load(self.backgroundpath) # adds a background image
         self.run_display = True
         while self.run_display:
