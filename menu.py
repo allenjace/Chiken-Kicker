@@ -1,5 +1,4 @@
-import pygame 
-import sys
+import pygame, os, sys
 from pygame import mixer
 from gameworld import *
 from game import *
@@ -14,6 +13,9 @@ class Menu():
         self.run_display = True
         self.cursor_rect = pygame.Rect (0, 0 , 20, 20)
         self.offset = -125
+        
+         # set up path 
+        self.fontpath = (os.path.join('/Users/allenjace/Desktop/Chiken Kicker/','Commodore Pixelized v1.2.ttf'))
         
     # draws cursor for main menu navigation
     def draw_cursor(self):
@@ -39,7 +41,8 @@ class MainMenu(Menu):
         
     # displays the menu while the game is still running
     def display_menu(self):
-        self.backgroundimage = pygame.image.load('ACHoFe2GPYzlyWtFHaxnTxKvVnruOsDr.jpg.webp')
+        self.backgroundpath =(os.path.join('/Users/allenjace/Desktop/Chiken Kicker/assets/images/','ACHoFe2GPYzlyWtFHaxnTxKvVnruOsDr.jpg.webp'))
+        self.backgroundimage = pygame.image.load(self.backgroundpath) # adds a background image
         self.run_display = True
         while self.run_display:
             self.game.check_events()
@@ -51,29 +54,27 @@ class MainMenu(Menu):
             self.game.draw_text('Options', 25, self.optionsx, self.optionsy - 5) # - 40
             self.game.draw_text('Credits', 25, self.creditsx, self.creditsy - 5) # + 10
             self.game.draw_text('Quit', 25, self.quitx, self.quity - 10)
-            self.draw_cursor()
-            self.blit_screen()
-            self.check_mouse_click()
+            self.draw_cursor() # draws the cursor the be able to click on text
+            self.blit_screen() 
+            self.check_mouse_click() # checks for mouse input
 
+    #checks the mouse is clicked
     def check_mouse_click(self):
         self.pos = pygame.mouse.get_pos()
         if pygame.mouse.get_pressed()[0] == 1 and not self.mouseclick:
             self.mouseclick = True
 
             if self.is_mouse_over_text('Play Game', self.startx, self.starty - 5, 30):
-                print("Play Game clicked!")
                 self.game.playing = True
                 self.run_display = False
             elif self.is_mouse_over_text('Options', self.optionsx, self.optionsy - 5, 25):
-                print("Options clicked!")
                 self.game.curr_menu = self.game.options
                 self.run_display = False
             elif self.is_mouse_over_text('Credits', self.creditsx, self.creditsy - 5, 25):
-                print("Credits clicked!")
+                
                 self.game.curr_menu = self.game.credits
                 self.run_display = False
             elif self.is_mouse_over_text('Quit', self.quitx, self.quity - 10, 25):
-                print("Quit clicked!")
                 pygame.quit()
                 sys.exit()
 
@@ -88,6 +89,7 @@ class MainMenu(Menu):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         return x <= mouse_x <= x + text_width and y <= mouse_y <= y + text_height
 
+    # moves the cursor based on the state it is currently on
     def move_cursor(self):
         if self.game.UP_KEY:
             if self.state == 'Start':
@@ -116,6 +118,7 @@ class MainMenu(Menu):
                 self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
                 self.state = 'Start'
 
+    #checks if the enter or back button is clicked and an action will happen
     def check_input(self):
         self.move_cursor()
         if self.game.START_KEY:
@@ -129,10 +132,13 @@ class MainMenu(Menu):
                 pygame.quit()
                 sys.exit()
             self.run_display = False
+        if self.game.BACK_KEY:
+            self.game.curr_menu = self.game.main_menu
+            self.run_display = False
 
 #class for the options menu
 class OptionsMenu(Menu):
-    
+    #initiates states and button for the options menu
     def __init__(self,game):
         Menu.__init__(self,game)
         self.state = 'Back'
@@ -140,6 +146,8 @@ class OptionsMenu(Menu):
         self.cursor_rect.midtop = (self.backbuttonx + self.offset, self.backbuttony)
         self.mouseclick = False
 
+    # function to display text, cursor for the options menu while the display is running
+    # also checks if mouse is clicked
     def display_menu(self):
         self.run_display = True
         while self.run_display:
@@ -152,17 +160,16 @@ class OptionsMenu(Menu):
             self.blit_screen()
             self.check_mouse_click()
 
+    #checks if mouse was clicked
     def check_mouse_click(self):
         self.pos = pygame.mouse.get_pos()
         if pygame.mouse.get_pressed()[0] == 1 and not self.mouseclick:
             self.mouseclick = True
 
             if self.is_mouse_over_text('Back', self.backbuttonx, self.backbuttony - 5, 25):
-                print("Back clicked!")
                 self.game.curr_menu = self.game.main_menu
                 self.run_display = False
             else:
-                print("Options clicked!")
                 self.game.curr_menu = self.game.options
                 self.run_display = False
             
@@ -177,12 +184,17 @@ class OptionsMenu(Menu):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         return x <= mouse_x <= x + text_width and y <= mouse_y <= y + text_height
     
+    #checks for specific keyboard input
     def check_input(self):
         if self.game.START_KEY:
             if self.state == 'Back':
                 self.game.curr_menu = self.game.main_menu
                 self.run_display = False
+        if self.game.BACK_KEY:
+            self.game.curr_menu = self.game.main_menu
+            self.run_display = False
 
+#class to initiate the credits state
 class CreditsMenu(Menu):
     def __init__(self,game):
         Menu.__init__(self,game)
@@ -191,6 +203,7 @@ class CreditsMenu(Menu):
         self.cursor_rect.midtop = (self.backbuttonx + self.offset, self.backbuttony)
         self.mouseclick = False
 
+    #function to display text for the credits menu
     def display_menu(self):
         self.run_display = True
         while self.run_display:
@@ -206,17 +219,16 @@ class CreditsMenu(Menu):
             self.blit_screen()
             self.check_mouse_click()
 
+    #checks if mouse was clicked
     def check_mouse_click(self):
         self.pos = pygame.mouse.get_pos()
         if pygame.mouse.get_pressed()[0] == 1 and not self.mouseclick:
             self.mouseclick = True
 
             if self.is_mouse_over_text('Back', self.backbuttonx, self.backbuttony - 5, 25):
-                print("Back clicked!")
                 self.game.curr_menu = self.game.main_menu
                 self.run_display = False
             else:
-                print("Credits clicked!")
                 self.game.curr_menu = self.game.credits
                 self.run_display = False
             
@@ -231,9 +243,14 @@ class CreditsMenu(Menu):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         return x <= mouse_x <= x + text_width and y <= mouse_y <= y + text_height
     
+    #checks for specific keyboard input
     def check_input(self):
         if self.game.START_KEY:
             if self.state == 'Back':
                 self.game.curr_menu = self.game.main_menu
                 self.run_display = False
+        if self.game.BACK_KEY:
+            self.game.curr_menu = self.game.main_menu
+            self.run_display = False
+
     
