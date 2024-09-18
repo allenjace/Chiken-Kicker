@@ -107,4 +107,30 @@ class deck():
 
     def draw_card(self, bucket:int) -> int:
         return self.deck[bucket][random.randint(1,len(self.deck[bucket]))]
-        
+# checks combo if game queue is in the form of a FIFO queue
+def check_combo_q(q:queue):
+    multiplier = 10000
+    combo_id = 0
+    while not q.empty():
+        combo_id += q.get() * multiplier
+        multiplier /= 100
+    return combo_id
+def check_combo_l(l:list):
+    multiplier = 10000
+    combo_id = 0
+    for i in l:
+        combo_id += i*multiplier
+        multiplier /= 100
+    return combo_id
+
+myq = queue.Queue()
+myq.put(12)
+myq.put(34)
+myq.put(56)
+print(check_combo_q(myq))
+
+myl = list()
+myl.append(12)
+myl.append(34)
+myl.append(56)
+print(check_combo_l(myl))
