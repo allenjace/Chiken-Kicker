@@ -11,7 +11,7 @@ class GameWorld:
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         self.screen.fill((0,205,255))
         # Set up font and its path
-        cwd = os.getcwd('/Users/allenjace/Desktop/Chiken Kicker/')
+        cwd = os.getcwd()
         self.fontpath = (os.path.join(cwd, 'Commodore Pixelized v1.2.ttf'))
         self.font = pygame.font.Font(self.fontpath, 40)
         
