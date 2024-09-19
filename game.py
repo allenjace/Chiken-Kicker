@@ -1,263 +1,90 @@
-import pygame, os, sys
+import pygame, os
+from menu import *
 from pygame import mixer
 from gameworld import *
-from game import *
 
-pygame.init()
+# game class
+class Game():
+    def __init__(self):
+        pygame.init()
+        pygame.display.set_caption('Chicken Kicker') # displays Chicken Kicker as the caption of the window
 
-class Menu():
-    # initiates the display
-    def __init__(self,game): 
-        self.game = game
-        self.mid_w, self.mid_h = self.game.DISPLAY_W/2, self.game.DISPLAY_H/2
-        self.run_display = True
-        self.cursor_rect = pygame.Rect (0, 0 , 20, 20)
-        self.offset = -125
-        
-         # set up path 
+        # set up path 
         cwd = os.getcwd('/Users/allenjace/Desktop/Chiken Kicker/')
         self.fontpath = (os.path.join(cwd,'Commodore Pixelized v1.2.ttf'))
-        
-    # draws cursor for main menu navigation
-    def draw_cursor(self):
-        self.game.draw_text('*', 25, self.cursor_rect.x, self.cursor_rect.y)
+        self.running, self.playing = True, False
+        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, False, False
+        self.DISPLAY_W, self.DISPLAY_H = 1280,800
+        self.display = pygame.Surface ((self.DISPLAY_W, self.DISPLAY_H))
+        self.window = pygame.display.set_mode (((self.DISPLAY_W, self.DISPLAY_H)))
+        self.main_menu = MainMenu(self)
+        self.options = OptionsMenu(self)
+        self.credits = CreditsMenu(self)
+        self.gameworld = GameWorld(self)
+        self.curr_menu = self.main_menu
+
+        # loads and plays music
+        cwd = os.getcwd('/Users/allenjace/Desktop/Chiken Kicker/')
+        self.musicpath = (os.path.join(cwd,'Kevin MacLeod - Pixelland  NO COPYRIGHT 8-bit Music.mp3'))
+        mixer.music.load(self.musicpath)
+        mixer.music.play(1)
+
+    # game loop
+    def game_loop(self):
+        start_ticks = pygame.time.get_ticks()
+        while self.playing:
+            self.check_events()
+            if self.START_KEY:
+                self.playing = False
+            self.display.fill((0,205,255))
+
+            # Calculate the elapsed time for the countdown timer
+            elapsed_ticks = pygame.time.get_ticks() - start_ticks
+            elapsed_time = elapsed_ticks // 1000  # Convert milliseconds to seconds
+
+            # Render the countdown timer on the game display
+            timer_surface,timer_rect = self.gameworld.countdown_timer(elapsed_time)
+            self.display.blit(timer_surface, timer_rect)  # Display the timer at the top-left corner
+
+            # Check for menu and state transitions
+            if self.main_menu.game.START_KEY:
+                if self.main_menu.state == 'Start Game':
+                    GameWorld.__init__(self)
+            
+            self.window.blit(self.display, (0,0))
+            self.gameworld.createQueue()
+            self.gameworld.createPlayerHand()
+            pygame.display.update()
+            self.reset_keys()
+
+    def check_events(self):
+        # event handler
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT: # quit game
+                self.running, self.playing = False, False
+                self.curr_menu.run_display = False
+            
+            if event.type ==  pygame.KEYDOWN:
+                if event.key  == pygame.K_RETURN:
+                    self.START_KEY = True
+                if event.key == pygame.K_BACKSPACE:
+                    self.BACK_KEY = True
+                if event.key == pygame.K_DOWN:
+                    self.DOWN_KEY = True
+                if event.key == pygame.K_UP:
+                    self.UP_KEY = True
+                if event.key == pygame.K_ESCAPE:
+                    self.ESCAPE_KEY = True
 
     # 
-    def blit_screen(self):
-        self.game.window.blit(self.game.display, (0,0))
-        pygame.display.update()
-        self.game.reset_keys()
-
-# Main Menu class that initiates states and variables for the menu screen
-class MainMenu(Menu):
-    def __init__(self, game):
-        Menu.__init__(self, game)
-        self.state = "Start"
-        self.startx, self.starty = self.mid_w, self.mid_h # + 30
-        self.optionsx, self.optionsy = self.mid_w, self.mid_h + 50 # + 60
-        self.creditsx, self.creditsy = self.mid_w, self.mid_h + 90# +80
-        self.quitx, self.quity = self.mid_w, self.mid_h + 200
-        self.cursor_rect.midtop = (self.startx + self.offset, self.starty) 
-        self.mouseclick = False
+    def draw_text(self, text, size, x, y):
+        pygame.font.init()
+        font = pygame.font.Font(self.fontpath, size)
+        text_surface = font.render(text, True, (255,255,255))
+        text_rect = text_surface.get_rect()
+        text_rect.center = (x,y)
+        self.display.blit(text_surface, text_rect)
         
-    # displays the menu while the game is still running
-    def display_menu(self):
-        cwd = os.getcwd('/Users/allenjace/Desktop/Chiken Kicker/')
-        self.backgroundpath =(os.path.join(cwd,'ACHoFe2GPYzlyWtFHaxnTxKvVnruOsDr.jpg.webp'))
-        self.backgroundimage = pygame.image.load(self.backgroundpath) # adds a background image
-        self.run_display = True
-        while self.run_display:
-            self.game.check_events()
-            self.check_input()
-            self.game.display.fill((0,205,255))
-            self.game.display.blit(self.backgroundimage, (0,0))
-            self.game.draw_text('Chicken Kicker', 100, self.game.DISPLAY_W/2, self.game.DISPLAY_H/2 - 175)
-            self.game.draw_text('Play Game', 30, self.startx, self.starty - 5) # -10
-            self.game.draw_text('Options', 25, self.optionsx, self.optionsy - 5) # - 40
-            self.game.draw_text('Credits', 25, self.creditsx, self.creditsy - 5) # + 10
-            self.game.draw_text('Quit', 25, self.quitx, self.quity - 10)
-            self.draw_cursor() # draws the cursor the be able to click on text
-            self.blit_screen() 
-            self.check_mouse_click() # checks for mouse input
-
-    #checks the mouse is clicked
-    def check_mouse_click(self):
-        self.pos = pygame.mouse.get_pos()
-        if pygame.mouse.get_pressed()[0] == 1 and not self.mouseclick:
-            self.mouseclick = True
-
-            if self.is_mouse_over_text('Play Game', self.startx, self.starty - 5, 30):
-                self.game.playing = True
-                self.run_display = False
-            elif self.is_mouse_over_text('Options', self.optionsx, self.optionsy - 5, 25):
-                self.game.curr_menu = self.game.options
-                self.run_display = False
-            elif self.is_mouse_over_text('Credits', self.creditsx, self.creditsy - 5, 25):
-                
-                self.game.curr_menu = self.game.credits
-                self.run_display = False
-            elif self.is_mouse_over_text('Quit', self.quitx, self.quity - 10, 25):
-                pygame.quit()
-                sys.exit()
-
-        if pygame.mouse.get_pressed()[0] == 0:
-            self.mouseclick = False
-
-    #checks if the mouse is over text
-    def is_mouse_over_text(self, text, x, y, font_size):
-        font = pygame.font.Font(None, font_size)
-        text_surface = font.render(text, True, (0, 0, 0))
-        text_width, text_height = text_surface.get_size()
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        return x <= mouse_x <= x + text_width and y <= mouse_y <= y + text_height
-
-    # moves the cursor based on the state it is currently on
-    def move_cursor(self):
-        if self.game.UP_KEY:
-            if self.state == 'Start':
-                self.cursor_rect.midtop = (self.quitx + self.offset, self.quity)
-                self.state = 'Quit'
-            elif self.state == 'Options':
-                self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
-                self.state = 'Start'
-            elif self.state == 'Credits':
-                self.cursor_rect.midtop = (self.optionsx + self.offset, self.optionsy)
-                self.state = 'Options'
-            elif self.state == 'Quit':
-                self.cursor_rect.midtop = (self.creditsx + self.offset, self.creditsy)
-                self.state = 'Credits'
-        if self.game.DOWN_KEY:
-            if self.state == 'Start':
-                self.cursor_rect.midtop = (self.optionsx + self.offset, self.optionsy)
-                self.state = 'Options'
-            elif self.state == 'Options':
-                self.cursor_rect.midtop = (self.creditsx + self.offset, self.creditsy)
-                self.state = 'Credits'
-            elif self.state == 'Credits':
-                self.cursor_rect.midtop = (self.quitx + self.offset, self.quity)
-                self.state = 'Quit'
-            elif self.state == 'Quit':
-                self.cursor_rect.midtop = (self.startx + self.offset, self.starty)
-                self.state = 'Start'
-
-    #checks if the enter or back button is clicked and an action will happen
-    def check_input(self):
-        self.move_cursor()
-        if self.game.START_KEY:
-            if self.state == 'Start':
-                self.game.playing = True
-            elif self.state == 'Options':
-                self.game.curr_menu = self.game.options
-            elif self.state == 'Credits':
-                self.game.curr_menu = self.game.credits
-            elif self.state == 'Quit':
-                pygame.quit()
-                sys.exit()
-            self.run_display = False
-        if self.game.BACK_KEY:
-            self.game.curr_menu = self.game.main_menu
-            self.run_display = False
-
-#class for the options menu
-class OptionsMenu(Menu):
-    #initiates states and button for the options menu
-    def __init__(self,game):
-        Menu.__init__(self,game)
-        self.state = 'Back'
-        self.backbuttonx, self.backbuttony = self.mid_w, self.mid_h + 120
-        self.cursor_rect.midtop = (self.backbuttonx + self.offset, self.backbuttony)
-        self.mouseclick = False
-
-    # function to display text, cursor for the options menu while the display is running
-    # also checks if mouse is clicked
-    def display_menu(self):
-        self.run_display = True
-        while self.run_display:
-            self.game.check_events()
-            self.check_input()
-            self.game.display.fill((0,205,255))
-            self.game.draw_text('Options', 100, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 250)
-            self.game.draw_rect('Toggle Fullscreen', 35, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 25)
-            self.button = pygame.Rect(25,25,25,25)
-        
-            self.game.draw_text('Volume', 35, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 50)
-            self.game.draw_text('Back', 25, self.backbuttonx, self.backbuttony - 5)
-            self.draw_cursor()
-            self.blit_screen()
-            self.check_mouse_click()
-
-    #checks if mouse was clicked
-    def check_mouse_click(self):
-        self.pos = pygame.mouse.get_pos()
-        if pygame.mouse.get_pressed()[0] == 1 and not self.mouseclick:
-            self.mouseclick = True
-
-            if self.is_mouse_over_text('Back', self.backbuttonx, self.backbuttony - 5, 25):
-                self.game.curr_menu = self.game.main_menu
-                self.run_display = False
-            else:
-                self.game.curr_menu = self.game.options
-                self.run_display = False
-            
-        if pygame.mouse.get_pressed()[0] == 0:
-            self.mouseclick = False
-
-    #checks if the mouse is over text
-    def is_mouse_over_text(self, text, x, y, font_size):
-        font = pygame.font.Font(None, font_size)
-        text_surface = font.render(text, True, (0, 0, 0))
-        text_width, text_height = text_surface.get_size()
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        return x <= mouse_x <= x + text_width and y <= mouse_y <= y + text_height
-    
-    #checks for specific keyboard input
-    def check_input(self):
-        if self.game.START_KEY:
-            if self.state == 'Back':
-                self.game.curr_menu = self.game.main_menu
-                self.run_display = False
-        if self.game.BACK_KEY:
-            self.game.curr_menu = self.game.main_menu
-            self.run_display = False
-
-    def toggle_screen(self):
-        pygame.display.toggle_fullscreen()
-
-#class to initiate the credits state
-class CreditsMenu(Menu):
-    def __init__(self,game):
-        Menu.__init__(self,game)
-        self.state = 'Back'
-        self.backbuttonx, self.backbuttony = self.mid_w, self.mid_h + 120
-        self.cursor_rect.midtop = (self.backbuttonx + self.offset, self.backbuttony)
-        self.mouseclick = False
-
-    #function to display text for the credits menu
-    def display_menu(self):
-        self.run_display = True
-        while self.run_display:
-            self.game.check_events()
-            self.check_input()
-            self.game.display.fill((0,205,255)) # fills the display with cyan color
-            self.game.draw_text('Credits:', 75, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 200)
-            self.game.draw_text('Ryan Lu', 30, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 35)
-            self.game.draw_text('Kenny Garcia', 30, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2)
-            self.game.draw_text('Allen Jace Pulido', 30, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 40)
-            self.game.draw_text('Back', 25, self.backbuttonx, self.backbuttony - 5)
-            self.draw_cursor()
-            self.blit_screen()
-            self.check_mouse_click()
-
-    #checks if mouse was clicked
-    def check_mouse_click(self):
-        self.pos = pygame.mouse.get_pos()
-        if pygame.mouse.get_pressed()[0] == 1 and not self.mouseclick:
-            self.mouseclick = True
-
-            if self.is_mouse_over_text('Back', self.backbuttonx, self.backbuttony - 5, 25):
-                self.game.curr_menu = self.game.main_menu
-                self.run_display = False
-            else:
-                self.game.curr_menu = self.game.credits
-                self.run_display = False
-            
-        if pygame.mouse.get_pressed()[0] == 0:
-            self.mouseclick = False
-
-    #checks if the mouse is over text
-    def is_mouse_over_text(self, text, x, y, font_size):
-        font = pygame.font.Font(None, font_size)
-        text_surface = font.render(text, True, (0, 0, 0))
-        text_width, text_height = text_surface.get_size()
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        return x <= mouse_x <= x + text_width and y <= mouse_y <= y + text_height
-    
-    #checks for specific keyboard input
-    def check_input(self):
-        if self.game.START_KEY:
-            if self.state == 'Back':
-                self.game.curr_menu = self.game.main_menu
-                self.run_display = False
-        if self.game.BACK_KEY:
-            self.game.curr_menu = self.game.main_menu
-            self.run_display = False
+    # function to reset keys
+    def reset_keys(self):
+        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, False, False   
