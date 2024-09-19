@@ -15,7 +15,8 @@ class Menu():
         self.offset = -125
         
          # set up path 
-        self.fontpath = (os.path.join('/Users/allenjace/Desktop/Chiken Kicker/','Commodore Pixelized v1.2.ttf'))
+        cwd = os.getcwd()
+        self.fontpath = (os.path.join(cwd,'Commodore Pixelized v1.2.ttf'))
         
     # draws cursor for main menu navigation
     def draw_cursor(self):
@@ -41,7 +42,8 @@ class MainMenu(Menu):
         
     # displays the menu while the game is still running
     def display_menu(self):
-        self.backgroundpath =(os.path.join('/Users/allenjace/Desktop/Chiken Kicker/','ACHoFe2GPYzlyWtFHaxnTxKvVnruOsDr.jpg.webp'))
+        cwd = os.getcwd()
+        self.backgroundpath =(os.path.join(cwd,'ACHoFe2GPYzlyWtFHaxnTxKvVnruOsDr.jpg.webp'))
         self.backgroundimage = pygame.image.load(self.backgroundpath) # adds a background image
         self.run_display = True
         while self.run_display:
