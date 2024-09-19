@@ -10,7 +10,7 @@ class Game():
         pygame.display.set_caption('Chicken Kicker') # displays Chicken Kicker as the caption of the window
 
         # set up path 
-        cwd = os.getcwd('/Users/allenjace/Desktop/Chiken Kicker/')
+        cwd = os.getcwd()
         self.fontpath = (os.path.join(cwd,'Commodore Pixelized v1.2.ttf'))
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, False, False
@@ -24,7 +24,7 @@ class Game():
         self.curr_menu = self.main_menu
 
         # loads and plays music
-        cwd = os.getcwd('/Users/allenjace/Desktop/Chiken Kicker/')
+        cwd = os.getcwd()
         self.musicpath = (os.path.join(cwd,'Kevin MacLeod - Pixelland  NO COPYRIGHT 8-bit Music.mp3'))
         mixer.music.load(self.musicpath)
         mixer.music.play(1)
