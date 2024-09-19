@@ -10,9 +10,9 @@ class GameWorld:
         self.screen_width, self.screen_height = 1280,800
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
         self.screen.fill((0,205,255))
-
         # Set up font and its path
-        self.fontpath = (os.path.join('/Users/allenjace/Desktop/Chiken Kicker/', 'Commodore Pixelized v1.2.ttf'))
+        cwd = os.getcwd('/Users/allenjace/Desktop/Chiken Kicker/')
+        self.fontpath = (os.path.join(cwd, 'Commodore Pixelized v1.2.ttf'))
         self.font = pygame.font.Font(self.fontpath, 40)
         
         # Timer variables (in seconds)
@@ -66,10 +66,23 @@ class GameWorld:
 
 
     def createQueue(self):
-        pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect(25, 50, 200, 550), 2)
+        pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((25, 50), (200, 550)), 2)
 
 
     def createPlayerHand(self):
         pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((25, 625), (900, 150)), 2)
 
+
+#class PauseMenu(GameWorld):
+   # self.GameWorld.screen.fill((0,205,255))
+    #self.game.draw_text('Nothing here', 75, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 100)
+    #self.game.draw_text('Back', 25, self.backbuttonx, self.backbuttony - 5)
     
+    #def check_events():
+
+    
+       # self.game.check_events()
+            #self.check_input()
+            #self.draw_cursor()
+            #self.blit_screen()
+            #self.check_mouse_click()
