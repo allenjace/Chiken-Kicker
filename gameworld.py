@@ -34,7 +34,7 @@ class GameWorld:
         timer_surface = self.font.render(time_text, True, (255, 255, 255))
 
         # Center the timer at the top of the screen
-        timer_rect = timer_surface.get_rect(center=(self.screen_width // 2, 40))  # 40 pixels from the top
+        timer_rect = timer_surface.get_rect(center=(self.screen_width // 2, 30))  # 40 pixels from the top
         return timer_surface, timer_rect
 
     # counting time
@@ -47,30 +47,36 @@ class GameWorld:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
-
             # Calculate elapsed time
             elapsed_ticks = pygame.time.get_ticks() - self.start_ticks
             elapsed_time = elapsed_ticks // 1000  # Convert milliseconds to seconds
-
             # Fill the screen with a color (background)
             self.screen.fill((0, 0, 0))
-
             # Render and display the countdown timer at the top
             timer_surface, timer_rect= self.countdown_timer(elapsed_time)
             self.screen.blit(timer_surface, timer_rect) #Positioning at the top middle
-            
             # Update the display
             pygame.display.flip()
             # Cap the frame rate
             self.clock.tick(60)
 
-
     def createQueue(self):
-        pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((25, 50), (200, 550)), 2)
+        self.queue = pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((25, 50), (200, 550)), 2)
 
 
     def createPlayerHand(self):
-        pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((25, 625), (900, 150)), 2)
+        self.playerhand = pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((25, 625), (900, 150)), 2)
+
+    def createDeck(self):
+        self.deck = pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((1050, 625), (200, 150)), 2)
+
+    def createArena(self):
+        self.arena = pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((250, 55), (1000, 550)), 2)
+    def createStage(self):
+        self.stage = pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((275, 75), (950, 500)), 2)
+
+
+
 
 
 #class PauseMenu(GameWorld):
