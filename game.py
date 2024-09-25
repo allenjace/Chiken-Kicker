@@ -8,7 +8,6 @@ class Game():
     def __init__(self):
         pygame.init()
         pygame.display.set_caption('Chicken Kicker') # displays Chicken Kicker as the caption of the window
-
         # set up path 
         cwd = os.getcwd()
         self.fontpath = (os.path.join(cwd,'Commodore Pixelized v1.2.ttf'))
@@ -16,7 +15,7 @@ class Game():
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, False, False
         self.DISPLAY_W, self.DISPLAY_H = 1280,800
         self.display = pygame.Surface ((self.DISPLAY_W, self.DISPLAY_H))
-        self.window = pygame.display.set_mode (((self.DISPLAY_W, self.DISPLAY_H)))
+        self.window = pygame.display.set_mode ((self.DISPLAY_W, self.DISPLAY_H), pygame.RESIZABLE)
         self.main_menu = MainMenu(self)
         self.options = OptionsMenu(self)
         self.credits = CreditsMenu(self)
@@ -33,7 +32,7 @@ class Game():
     def game_loop(self):
         start_ticks = pygame.time.get_ticks()
         while self.playing:
-            self.check_events()
+            self.checkEvents()
             if self.START_KEY:
                 self.playing = False
             self.display.fill((0,205,255))
@@ -54,10 +53,11 @@ class Game():
             self.window.blit(self.display, (0,0))
             self.gameworld.createQueue()
             self.gameworld.createPlayerHand()
+            self.gameworld.createDeck()
             pygame.display.update()
-            self.reset_keys()
+            self.resetKeys()
 
-    def check_events(self):
+    def checkEvents(self):
         # event handler
         for event in pygame.event.get():
             if event.type == pygame.QUIT: # quit game
@@ -77,7 +77,7 @@ class Game():
                     self.ESCAPE_KEY = True
 
     # 
-    def draw_text(self, text, size, x, y):
+    def drawText(self, text, size, x, y):
         pygame.font.init()
         font = pygame.font.Font(self.fontpath, size)
         text_surface = font.render(text, True, (255,255,255))
@@ -86,5 +86,13 @@ class Game():
         self.display.blit(text_surface, text_rect)
         
     # function to reset keys
-    def reset_keys(self):
-        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, False, False   
+    def resetKeys(self):
+        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, False, False  
+
+
+if __name__ == "__main__":
+    runGame = Game()
+
+    while runGame.running:
+        runGame.curr_menu.displayMenu()
+        runGame.game_loop()
