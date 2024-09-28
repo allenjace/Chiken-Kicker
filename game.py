@@ -25,6 +25,7 @@ class Game():
         # loads and plays music
         cwd = os.getcwd()
         self.musicpath = (os.path.join(cwd,'Kevin MacLeod - Pixelland  NO COPYRIGHT 8-bit Music.mp3'))
+        pygame.mixer.init()
         mixer.music.load(self.musicpath)
         mixer.music.play(1)
 
