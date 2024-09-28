@@ -1,8 +1,10 @@
 import random
+import queue
 
 class deck():
     def __init__(self) -> None:
         self.deck = self.create_deck()
+        self.sections = []
         print("deck created")
         
     def create_deck(self) -> list:
@@ -20,29 +22,37 @@ class deck():
         #  d -> short description of the card
         #  img -> image to be displayed on the player hand and queue
         
-        # common cards
-        common_deck = dict()
-        common_deck[len(common_deck)+1] = ["Move Left", [-1,0], None, "Moves Left", "some/file/path.png"]
-        common_deck[len(common_deck)+1] = ["Move Right", [1,0], None, "Moves right", "some/file/path.png"]
-        common_deck[len(common_deck)+1] = ["Move Up", [0,1], None, "Moves up", "some/file/path.png"]
-        common_deck[len(common_deck)+1] = ["Move Down", [0,-1], None, "Moves down", "some/file/path.png"]
-        common_deck[len(common_deck)+1] = ["flying kick", [2,1], [1,[0,5,-1,1]],"A kick whilst flying","some/file/s.png"]
-        common_deck[len(common_deck)+1] = ["Kick", None, [1,[1,0,False],[(1,1)]], "A kick aimed towards the family jewels", "some/file/path.png"]
+        # common cards - total 6
+        deck = dict()
+        deck[len(deck)+1] = ["Move Left", "Moves Left"]
+        deck[len(deck)+1] = ["Move Right", "Moves right"]
+        deck[len(deck)+1] = ["Move Up", "Moves up"]
+        deck[len(deck)+1] = ["Move Down", "Moves down"]
+        deck[len(deck)+1] = ["Duck", "Duck down"]
+        deck[len(deck)+1] = ["Kick", "A kick aimed towards the family jewels"]
         
-        # rare cards
-        rare_deck = dict()
-        rare_deck[len(rare_deck)+1] = ["flying kick", [2,1], [1,[2,0,False],[-1,1,1,1]],"A kick whilst flying","some/file/s.png"]
-        rare_deck[len(rare_deck)+1] = ["Roundhouse Kick", None, [1,[0,5,-1,1]],"flying kick","some/file/s.png"]
-        
-        # epic cards
-        epic_deck = dict()
-        epic_deck[len(epic_deck)+1] = ["epic placeholder", [2,1], [1,[2,0,False],[-1,1,1,1]],"A kick whilst flying","some/file/s.png"]
+        # rare cards - total 5
+        deck[len(deck)+1] = ["Back Kick", "Happy de ume tsukushite"] # direction opposite orientation + kick
+        deck[len(deck)+1] = ["Flying Kick", "Soaring through the air feet first"] # up + direction + kick 
+        deck[len(deck)+1] = ["Roundhouse Kick", "A kick with extra knockback"] # left + right + kick or right + left + kick
+        deck[len(deck)+1] = ["Axe Kick", "A kick with a chance to stun"] # up + down + kick
+        deck[len(deck)+1] = ["Knee Strike", "A quick knee to the chin"] # up + kick
+        deck[len(deck)+1] = ["Spin","You some kind of ballerina?"] # left + right + left
+        deck[len(deck)+1] = ["Leap","Its like jumping twice"] # up + up + up
+
+
+        # epic cards - total 3
+        deck[len(deck)+1] = ["Spinning Back Kick", "A powerful spinning kick"] # spin + back kick
+        deck[len(deck)+1] = ["Flying Knee", ""] # direction + direction + knee strike
+        deck[len(deck)+1] = ["Tornado Kick", "Let it rip!"] # spin + roundhouse kick
+        deck[len(deck)+1] = ["Sky Drop",""]
+
+
 
         # legendary careds
-        leg_deck = dict()
+        deck[len(deck)+1] = ["Roids", "Jump Higher, Run Faster Kick Harder"]
 
-
-        return [common_deck,rare_deck, epic_deck, leg_deck]
+        return deck
 
     def get_card_name(self, id: int) -> str:
         return self.deck[id][0]
@@ -65,48 +75,33 @@ class deck():
         for i in range(n):
             bucket_choice = random.randrange(1,100)
             # before 3:30, chances for C/R/E/L -> 60/35/5/0
-            if time > 210:
-                if bucket_choice < 61:
-                    cards_drawn.append(self.draw_card(0))
-                elif bucket_choice < 96:
-                    cards_drawn.append(self.draw_card(1))
+            if time > 120:
+                if bucket_choice < 70:
+                    cards_drawn.append(self.draw_card(7,12))
+                elif bucket_choice < 95:
+                    cards_drawn.append(self.draw_card(13,16))
                 else:
-                    cards_drawn.append(self.draw_card(2))
+                    cards_drawn.append(self.draw_card(17,17))
             # between 2:00 and 3:30 chances for C/R/E/L -> 45/40/10/1
-            elif time > 120:
-                if bucket_choice < 41:
-                    cards_drawn.append(self.draw_card(0))
-                elif bucket_choice < 71:
-                    cards_drawn.append(self.draw_card(1))
-                elif bucket_choice < 91:
-                    cards_drawn.append(self.draw_card(2))
-                else:
-                    cards_drawn.append(self.draw_card(3))
-            # between 2:00 and 3:30 chances for C/R/E/L -> 30/40/25/5
             elif time > 60:
-                if bucket_choice < 31:
-                    cards_drawn.append(self.draw_card(0))
-                elif bucket_choice < 71:
-                    cards_drawn.append(self.draw_card(1))
-                elif bucket_choice < 96:
-                    cards_drawn.append(self.draw_card(2))
+                if bucket_choice < 55:
+                    cards_drawn.append(self.draw_card(7,12))
+                elif bucket_choice < 90:
+                    cards_drawn.append(self.draw_card(13,16))
                 else:
-                    cards_drawn.append(self.draw_card(3))
-            # between 2:00 and 3:30 chances for C/R/E/L -> 15/30/45/10
+                    cards_drawn.append(self.draw_card(17,17))
+            # between 2:00 and 3:30 chances for C/R/E/L -> 30/40/25/5
             else:
-                if bucket_choice < 16:
-                    cards_drawn.append(self.draw_card(0))
-                elif bucket_choice < 46:
-                    cards_drawn.append(self.draw_card(1))
-                elif bucket_choice < 91:
-                    cards_drawn.append(self.draw_card(2))
+                if bucket_choice < 40:
+                    cards_drawn.append(self.draw_card(7,12))
+                elif bucket_choice < 85:
+                    cards_drawn.append(self.draw_card(13,16))
                 else:
-                    cards_drawn.append(self.draw_card(3))
-                
+                    cards_drawn.append(self.draw_card(17,17))
         return cards_drawn
 
-    def draw_card(self, bucket:int) -> int:
-        return self.deck[bucket][random.randint(1,len(self.deck[bucket]))]
+    def draw_card(self, lower:int, upper:int) -> int:
+        return self.deck[random.randint(lower, upper)]
 # checks combo if game queue is in the form of a FIFO queue
 def check_combo_q(q:queue):
     multiplier = 10000
@@ -122,15 +117,3 @@ def check_combo_l(l:list):
         combo_id += i*multiplier
         multiplier /= 100
     return combo_id
-
-myq = queue.Queue()
-myq.put(12)
-myq.put(34)
-myq.put(56)
-print(check_combo_q(myq))
-
-myl = list()
-myl.append(12)
-myl.append(34)
-myl.append(56)
-print(check_combo_l(myl))
