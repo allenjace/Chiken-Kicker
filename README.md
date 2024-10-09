@@ -5,7 +5,7 @@ Ryan Lu
 Kenny Garcia
 Allen Jace Pulido
 
-Project: Chiken Kicker
+Project: Chicken Kicker
 
 
 Language:  Python, Pygame
