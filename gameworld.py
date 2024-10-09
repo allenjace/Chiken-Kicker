@@ -54,7 +54,7 @@ class GameWorld:
             image_path = self.carddeck.get_card_img(self.current_card_id)
             self.card_images[self.current_card_id] = pygame.image.load(image_path).convert_alpha()
             # Position card within the deck area
-            self.card_rects[self.current_card_id] = self.card_images[self.current_card_id].get_rect(topleft=(1185, 785))
+            self.card_rects[self.current_card_id] = self.card_images[self.current_card_id].get_rect(topleft=(1235, 775))
         else:
             self.current_card_id = None  # No more cards in the deck
 
@@ -119,7 +119,7 @@ class GameWorld:
                                 # Place the card in the player hand
                                 self.hand_cards.append(self.selected_card_id)
                                 hand_x = len(self.hand_cards) * 100  # Position cards in the hand
-                                self.card_rects[self.selected_card_id].topleft = (hand_x - 75, 785)
+                                self.card_rects[self.selected_card_id].topleft = (hand_x - 75, 775)
                                 self.load_next_card()  # Load the next card from the deck
                             else:
                                 print("Hand is full. No more cards can be added.")
