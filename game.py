@@ -1,9 +1,9 @@
-import pygame, os
+import pygame
+import os
 from menu import *
-from pygame import mixer
+from pygame import *
 from gameworld import *
 
-# game class
 class Game():
     def __init__(self):
         pygame.init()
@@ -13,9 +13,13 @@ class Game():
         self.fontpath = (os.path.join(cwd,'Commodore Pixelized v1.2.ttf'))
         self.running, self.playing = True, False
         self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, False, False
-        self.DISPLAY_W, self.DISPLAY_H = 1280,800
+        os.environ['SDL_VIDEO_CENTERED'] = '1'
+        self.screeninfo = pygame.display.Info()
+        self.DISPLAY_W, self.DISPLAY_H = self.screeninfo.current_w, self.screeninfo.current_h
+        #self.DISPLAY_W, self.DISPLAY_H = 1280,800 
+        self.window = pygame.display.set_mode((self.DISPLAY_W,self.DISPLAY_H),pygame.FULLSCREEN)
         self.display = pygame.Surface ((self.DISPLAY_W, self.DISPLAY_H))
-        self.window = pygame.display.set_mode ((self.DISPLAY_W, self.DISPLAY_H), pygame.RESIZABLE)
+        #self.window = pygame.display.set_mode ((self.DISPLAY_W, self.DISPLAY_H), pygame.RESIZABLE)
         self.main_menu = MainMenu(self)
         self.options = OptionsMenu(self)
         self.credits = CreditsMenu(self)
@@ -26,37 +30,23 @@ class Game():
         cwd = os.getcwd()
         self.musicpath = (os.path.join(cwd,'Kevin MacLeod - Pixelland  NO COPYRIGHT 8-bit Music.mp3'))
         pygame.mixer.init()
-        mixer.music.load(self.musicpath)
-        mixer.music.play(1)
+        self.sound = pygame.mixer
+        self.sound.music.load(self.musicpath)
+        self.sound.music.play(-1)
 
     # game loop
     def game_loop(self):
-        start_ticks = pygame.time.get_ticks()
         while self.playing:
             self.checkEvents()
             if self.START_KEY:
                 self.playing = False
             self.display.fill((0,205,255))
 
-            # Calculate the elapsed time for the countdown timer
-            elapsed_ticks = pygame.time.get_ticks() - start_ticks
-            elapsed_time = elapsed_ticks // 1000  # Convert milliseconds to seconds
+            self.gameworld.run()
 
-            # Render the countdown timer on the game display
-            timer_surface,timer_rect = self.gameworld.countdown_timer(elapsed_time)
-            self.display.blit(timer_surface, timer_rect)  # Display the timer at the top-left corner
-
-            # Check for menu and state transitions
-            if self.main_menu.game.START_KEY:
-                if self.main_menu.state == 'Start Game':
-                    GameWorld.__init__(self)
-            
             self.window.blit(self.display, (0,0))
-            self.gameworld.createQueue()
-            self.gameworld.createPlayerHand()
-            self.gameworld.createDeck()
-            pygame.display.update()
             self.resetKeys()
+            pygame.display.update()
 
     def checkEvents(self):
         # event handler
@@ -64,7 +54,7 @@ class Game():
             if event.type == pygame.QUIT: # quit game
                 self.running, self.playing = False, False
                 self.curr_menu.run_display = False
-            
+
             if event.type ==  pygame.KEYDOWN:
                 if event.key  == pygame.K_RETURN:
                     self.START_KEY = True
@@ -78,22 +68,34 @@ class Game():
                     self.ESCAPE_KEY = True
 
     # 
-    def drawText(self, text, size, x, y):
+    def drawText(self, text, size, x, y, outline_color=(0, 205, 255), text_color=(255, 255, 255), outline_thickness=2):
         pygame.font.init()
         font = pygame.font.Font(self.fontpath, size)
-        text_surface = font.render(text, True, (255,255,255))
-        text_rect = text_surface.get_rect()
-        text_rect.center = (x,y)
-        self.display.blit(text_surface, text_rect)
         
-    # function to reset keys
+        # Render the text itself
+        text_surface = font.render(text, True, text_color)
+        text_rect = text_surface.get_rect(center=(x, y))
+        
+        # Render the outline by rendering the text slightly offset in all directions
+        outline_surfaces = []
+        for dx in [-outline_thickness, 0, outline_thickness]:
+            for dy in [-outline_thickness, 0, outline_thickness]:
+                if dx != 0 or dy != 0:  # Skip the center point (original text)
+                    outline_surface = font.render(text, True, outline_color)
+                    outline_rect = outline_surface.get_rect(center=(x + dx, y + dy))
+                    self.display.blit(outline_surface, outline_rect)
+
+        # Blit the original text on top of the outline
+        self.display.blit(text_surface, text_rect)
+
+
+#function to reset keys
     def resetKeys(self):
-        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, False, False  
+        self.UP_KEY, self.DOWN_KEY, self.START_KEY, self.BACK_KEY, self.ESCAPE_KEY = False, False, False, False, False
 
 
 if __name__ == "__main__":
     runGame = Game()
-
     while runGame.running:
         runGame.curr_menu.displayMenu()
         runGame.game_loop()
