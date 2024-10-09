@@ -267,7 +267,7 @@ class PauseMenu:
         self.gameworld = GameWorld
         self.game = Game
         cwd = os.getcwd()
-        self.fontpath = (os.path.join(cwd, 'Atop-R99O3.ttf'))
+        self.fontpath = (os.path.join(cwd, 'Commodore Pixelized v1.2.ttf'))
         self.font = pygame.font.Font(self.fontpath, 40)  # Use the same font as the game
         self.menu_options = ["Resume", "Restart", "Options", "Quit"]
         self.selected_option = 0  # Track which option is selected
