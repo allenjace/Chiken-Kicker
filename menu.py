@@ -45,7 +45,7 @@ class MainMenu(Menu):
     # displays the menu while the game is still running
     def displayMenu(self):
         cwd = os.getcwd()
-        self.backgroundpath =(os.path.join(cwd,'background.webp'))
+        self.backgroundpath =(os.path.join(cwd,'background.jpg.webp'))
         self.background_x, self.background_y = 50, 0
         self.backgroundimage = pygame.image.load(self.backgroundpath)
         self.backgroundimage.set_alpha(128)# adds a background image
