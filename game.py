@@ -68,7 +68,7 @@ class Game():
                     self.ESCAPE_KEY = True
 
     # 
-    def drawText(self, text, size, x, y, outline_color=(0, 205, 255), text_color=(255, 255, 255), outline_thickness=2):
+    def drawText(self, text, size, x, y, outline_color=(0, 175, 255), text_color=(255, 255, 255), outline_thickness=3.5):
         pygame.font.init()
         font = pygame.font.Font(self.fontpath, size)
         
