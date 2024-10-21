@@ -1,7 +1,7 @@
 import random
 import queue
 
-class deck():
+class Deck():
     def __init__(self) -> None:
         self.deck = self.create_deck()
         self.sections = []
@@ -9,48 +9,38 @@ class deck():
         
     def create_deck(self) -> list:
         # dictionary to describe cards
-        # [n, pos, atk, d, img]
-        #  n -> Name of the card
-        #  pos -> describes change in position for character, None if no change in position
-        #    - [x,y] given position of the characer (0,0), the character would be moved to (x,y) after the card is played
-        #  atk -> describes the attack of the card, left None if no attack is made
-        #    - [dmg, k, x1, x2, y1, y2]
-        #    - dmg -> dmg done to opponent if opponent is within the aoe (x1,x2,y1,y2)
-        #    - k -> knockback done to the opponent if hit
-        #        - [x, y, prone] pos vector denoting change in movement and if action knocks the opponent down 
-        #    - aoe ranges from x1 - x2, y1 - y2
-        #  d -> short description of the card
-        #  img -> image to be displayed on the player hand and queue
-        
+        # format: [name, description, card rarity, player movement = (dx,dy, ratio to shrink/expand char), enemy movement = (dx,dy, ratio), range, self dmg, enemy dmg]
+        # deck[len(deck)+1] = ["", "", (0,0,1), (0,0,1), 0, 0]
         # common cards - total 6
         deck = dict()
-        deck[len(deck)+1] = ["Move Left", "Moves Left"]
-        deck[len(deck)+1] = ["Move Right", "Moves right"]
-        deck[len(deck)+1] = ["Move Up", "Moves up"]
-        deck[len(deck)+1] = ["Move Down", "Moves down"]
-        deck[len(deck)+1] = ["Duck", "Duck down"]
-        deck[len(deck)+1] = ["Kick", "A kick aimed towards the family jewels"]
+        deck[len(deck)+1] = ["Forward", "Moves Left",0, [5,0,1], [0,0,1], [0,0], 0, 0]
+        deck[len(deck)+1] = ["Backward", "Moves right",0, [-5,0,1], [0,0,1], [0,0], 0, 0]
+        deck[len(deck)+1] = ["Jump", "Jump",0,[0,-15,1], [0,0,1], [0,0], 0, 0]
+        deck[len(deck)+1] = ["Move Down", "Moves down",0,[0,15,1], [0,0,1], [0,0], 0, 0]
+        deck[len(deck)+1] = ["Duck", "Duck down",0,[0,0,0.5], [0,0,1], [0,0], 0, 0]
+        deck[len(deck)+1] = ["Kick", "A kick aimed towards the family jewels",0,[0,0,1],[5,0,1], [0.5,0.5], 0, 5]
         
         # rare cards - total 5
-        deck[len(deck)+1] = ["Back Kick", "Happy de ume tsukushite"] # direction opposite orientation + kick
-        deck[len(deck)+1] = ["Flying Kick", "Soaring through the air feet first"] # up + direction + kick 
-        deck[len(deck)+1] = ["Roundhouse Kick", "A kick with extra knockback"] # left + right + kick or right + left + kick
-        deck[len(deck)+1] = ["Axe Kick", "A kick with a chance to stun"] # up + down + kick
-        deck[len(deck)+1] = ["Knee Strike", "A quick knee to the chin"] # up + kick
-        deck[len(deck)+1] = ["Spin","You some kind of ballerina?"] # left + right + left
-        deck[len(deck)+1] = ["Leap","Its like jumping twice"] # up + up + up
+        deck[len(deck)+1] = ["Back Kick", "Happy de ume tsukushite",1,[0,0,1], [0,0,1], [0.5,0.5]] # direction opposite orientation + kick
+        deck[len(deck)+1] = ["Flying Kick", "Soaring through the air feet first",[-5,-15,1], [0,0,1], [0.5,0.5]] # up + direction + kick 
+        deck[len(deck)+1] = ["Roundhouse Kick", "A kick with extra knockback",1,[0,0,1], [0,0,1], [0.5,1]] # left + right + kick or right + left + kick
+        deck[len(deck)+1] = ["Axe Kick", "A kick with a chance to stun",1,[0,0,1], [0,0,1], [0.5,1]] # up + down + kick
+        deck[len(deck)+1] = ["Knee Strike", "A quick knee to the chin",1,[0,0,1], [0,0,1], [0.5,0.5]] # up + kick
+        deck[len(deck)+1] = ["Spin","You some kind of ballerina?",1,[0,0,1], [0,0,1], [0,0]] # left + right + left
+        deck[len(deck)+1] = ["Leap","Its like jumping twice",1,[0,-30,1], [0,0,1], [0,0]] # up + up + up
 
 
         # epic cards - total 3
-        deck[len(deck)+1] = ["Spinning Back Kick", "A powerful spinning kick"] # spin + back kick
-        deck[len(deck)+1] = ["Flying Knee", ""] # direction + direction + knee strike
-        deck[len(deck)+1] = ["Tornado Kick", "Let it rip!"] # spin + roundhouse kick
-        deck[len(deck)+1] = ["Sky Drop",""]
-
+        deck[len(deck)+1] = ["Spinning Back Kick", "A powerful spinning kick",2,[0,0,1], [0,0,1], [0.5,0]] # spin + back kick
+        deck[len(deck)+1] = ["Flying Knee", "",2,[10,15,1], [0,0,1], [0.5,0.5]] # direction + direction + knee strike
+        deck[len(deck)+1] = ["Tornado Kick", "Let it rip!",2,[0,0,1], [0,0,1], [0.5,1]] # spin + roundhouse kick
+        deck[len(deck)+1] = ["Sky Drop","",2,[0,-15,1], [0,0,1], [0.5,1.5]]
+        # rdm drug
 
 
         # legendary careds
-        deck[len(deck)+1] = ["Roids", "Jump Higher, Run Faster Kick Harder"]
+        deck[len(deck)+1] = ["Roids", "Jump Higher, Run Faster Kick Harder",3] # add a multiplier to outgoing dmg
+        
 
         return deck
 
