@@ -42,13 +42,14 @@ class MainMenu(Menu):
         self.cursor_rect.midtop = (self.startx + self.offset, self.starty) 
         self.mouseclick = False
         
-    # displays the menu while the game is still running
-    def displayMenu(self):
+        # set up background
         cwd = os.getcwd()
         self.backgroundpath =(os.path.join(cwd,'background.jpg.webp'))
-        self.background_x, self.background_y = 50, 0
         self.backgroundimage = pygame.image.load(self.backgroundpath)
-        self.backgroundimage.set_alpha(128)# adds a background image
+        self.backgroundimage.set_alpha(75)
+
+    # displays the menu while the game is still running
+    def displayMenu(self):
         self.run_display = True
         
         self.title_y = self.game.DISPLAY_H / 2 - self.game.DISPLAY_H * 0.4  # Adjust the title 40% from the center
