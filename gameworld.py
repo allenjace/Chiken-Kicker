@@ -6,6 +6,8 @@ from game import *
 from deck import *
 from menu import *
 from pygame.locals import *
+from fighter import *
+from main import Main
 
 # Initialize pygame
 pygame.init()
@@ -18,13 +20,18 @@ class GameWorld:
         os.environ['SDL_VIDEO_CENTERED'] = '1'
         self.screeninfo = pygame.display.Info()
         self.DISPLAY_W, self.DISPLAY_H = self.screeninfo.current_w, self.screeninfo.current_h
-        self.screen = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.FULLSCREEN |pygame.SCALED)
-        self.screen.fill((0, 205, 255))
+        self.screen = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.FULLSCREEN | pygame.SCALED)
+        #self.screen.fill((0, 205, 255))
         # Set up font and its path
         cwd = os.getcwd()
         self.fontpath = os.path.join(cwd, 'Commodore Pixelized v1.2.ttf')
         self.font = pygame.font.Font(self.fontpath, 40)
         
+        # set up main gameplay
+        self.main_game = Main(self.DISPLAY_W, self.DISPLAY_H)
+        self.stage_surface = None
+        self.stage_initialized = False
+
         # Timer variables (in seconds)
         self.clock = pygame.time.Clock()
         self.start_time = 5 * 60  # 5 minutes in seconds
@@ -54,7 +61,12 @@ class GameWorld:
             image_path = self.carddeck.get_card_img(self.current_card_id)
             self.card_images[self.current_card_id] = pygame.image.load(image_path).convert_alpha()
             # Position card within the deck area
-            self.card_rects[self.current_card_id] = self.card_images[self.current_card_id].get_rect(topleft=(1235, 775))
+            self.card_width, self.card_height = self.card_images[self.current_card_id].get_size()
+            self.card_x = int(self.DISPLAY_W * 0.86)  # Assuming 1920x1080 as base resolution
+            self.card_y = int(self.DISPLAY_H* 0.825)
+            self.card_x = min(self.card_x, self.DISPLAY_W - self.card_width)
+            self.card_y = min(self.card_y, self.DISPLAY_H - self.card_height)
+            self.card_rects[self.current_card_id] = self.card_images[self.current_card_id].get_rect(topleft=(self.card_x, self.card_y))
         else:
             self.current_card_id = None  # No more cards in the deck
 
@@ -73,7 +85,8 @@ class GameWorld:
         running = True
         
         while running:
-            mouse_pos = pygame.mouse.get_pos()
+            self.clock.tick(60)
+            self.mouse_pos = pygame.mouse.get_pos()
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -86,62 +99,72 @@ class GameWorld:
                         running = False
                     if event.key == pygame.K_ESCAPE:  # Toggle pause menu
                         self.pause_menu.toggle_menu()
-                elif event.type == pygame.MOUSEBUTTONDOWN:
+                # Handle mouse events
+                if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1 and self.current_card_id:  # LMB for dragging the card from deck
                         rect = self.card_rects[self.current_card_id]
-                        if rect.collidepoint(mouse_pos):
+                        if rect.collidepoint(self.mouse_pos):
                             self.moving = True
                             self.selected_card_id = self.current_card_id
-                            self.offset_x = rect.x - mouse_pos[0]
-                            self.offset_y = rect.y - mouse_pos[1]
-                           #if len(self.hand_cards) < self.max_hand_cards:
+                            self.offset_x = rect.x - self.mouse_pos[0]
+                            self.offset_y = rect.y - self.mouse_pos[1]
+                            #if len(self.hand_cards) < self.max_hand_cards:
                                 # Place the card in the player hand
-                               # self.hand_cards.append(self.selected_card_id)
+                                # self.hand_cards.append(self.selected_card_id)
                                 #hand_x = len(self.hand_cards) * 100  # Position cards in the hand
-                               # self.card_rects[self.selected_card_id].topleft = (hand_x - 75, 785)
-                               # self.load_next_card()  # Load the next card from the deck
-                              #  break
+                                # self.card_rects[self.selected_card_id].topleft = (hand_x - 75, 785)
+                                # self.load_next_card()  # Load the next card from the deck
+                                #  break
                     elif event.button == 3:  # RMB for showing description
                         for card_id, rect in self.card_rects.items():
-                            if rect.collidepoint(mouse_pos):
+                            if rect.collidepoint(self.mouse_pos):
                                 self.display_cardinfo = card_id  # Store the card id to display info
                                 break
                 elif event.type == MOUSEMOTION and self.moving:
                     if self.selected_card_id is not None and self.selected_card_id in self.card_rects:
-                        self.card_rects[self.selected_card_id].x = mouse_pos[0] + self.offset_x
-                        self.card_rects[self.selected_card_id].y = mouse_pos[1] + self.offset_y
+                        self.card_rects[self.selected_card_id].x = self.mouse_pos[0] + self.offset_x
+                        self.card_rects[self.selected_card_id].y = self.mouse_pos[1] + self.offset_y
                 elif event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1 and self.moving:
                         self.moving = False
+                        
                         # Check if the card is placed in the player hand area
-                        if self.createPlayerHand().collidepoint(mouse_pos):
+                        if self.createPlayerHand().collidepoint(self.mouse_pos):
                             if len(self.hand_cards) < self.max_hand_cards:
                                 # Place the card in the player hand
                                 self.hand_cards.append(self.selected_card_id)
-                                hand_x = len(self.hand_cards) * 100  # Position cards in the hand
-                                self.card_rects[self.selected_card_id].topleft = (hand_x - 75, 775)
+                                self.hand_x = len(self.hand_cards) * 150  # Position cards in the hand
+                                self.card_width, self.card_height = self.card_rects[self.selected_card_id].size
+                                self.hand_horizontal_ratio = (self.hand_x - 75) / 1920 
+                                self.hand_horizontal = int(self.DISPLAY_W * self.hand_horizontal_ratio)
+                                self.hand_vertical = int(self.DISPLAY_H * 0.825)
+                                self.hand_horizontal = max(0, min(self.hand_horizontal, self.DISPLAY_W - self.card_width))
+                                self.hand_vertical = max(0, min(self.hand_vertical, self.DISPLAY_H - self.card_height))
+                                self.card_rects[self.selected_card_id].topleft = (self.hand_horizontal, self.hand_vertical)
                                 self.load_next_card()  # Load the next card from the deck
                             else:
                                 print("Hand is full. No more cards can be added.")
+                        elif self.selected_card_id == self.current_card_id:
+                            self.card_rects[self.current_card_id] = self.card_images[self.current_card_id].get_rect(topleft=(self.card_x, self.card_y))
                         self.selected_card_id = None
                     elif event.button == 3:
                         self.display_cardinfo = None  # Hide card info on RMB release
-             # If the pause menu is active, stop game logic and show the menu
+            # If the pause menu is active, stop game logic and show the menu
             if self.pause_menu.menu_active:
                 self.pause_menu.draw_menu()
-                self.pause_menu.handle_input()
+                self.pause_menu.handle_input()      
                 pygame.display.update()
-                self.clock.tick(60)
                 continue  # Skip the rest of the game logic when paused
             
             # Fill the screen with background color
             self.screen.fill((0, 205, 255))
+
             # Display the countdown timer at the top
             elapsed_ticks = pygame.time.get_ticks() - self.start_ticks
             elapsed_time = elapsed_ticks // 1000
             timer_surface, timer_rect = self.countdown_timer(elapsed_time)
             self.screen.blit(timer_surface, timer_rect)
-
+            
             # Draw deck area and current card in the deck
             self.createDeck()
             if self.current_card_id:
@@ -157,6 +180,7 @@ class GameWorld:
                 card_description = self.carddeck.get_card_description(self.display_cardinfo)
                 self.card_info(card_name, card_description, self.card_rects[self.display_cardinfo])
 
+
             # Draw other UI elements
             self.createArena()
             self.createPlayerHand()
@@ -165,48 +189,77 @@ class GameWorld:
 
             # Update display
             pygame.display.flip()
-            self.clock.tick(60)
+    
     
     def card_info(self, card_name, card_description, rect):
         font = pygame.font.SysFont(None, 24)
         cardname_text = font.render(card_name, True, (255, 255, 255))
         description_text = font.render(card_description, True, (255, 255, 255))
         info_x = rect.right + 10
-        info_y = rect.top
+        info_y = rect.top + 25
         
         pygame.draw.rect(self.screen, (0, 0, 0), (info_x, info_y, 225, 60))
         self.screen.blit(cardname_text, (info_x + 5, info_y + 5))
         self.screen.blit(description_text, (info_x + 5, info_y + 30))
     
     def reset(self):
-         # Set up deck again
+        self.stage_initialized = False
+        # Set up deck again
         self.carddeck = Deck(self)
         self.current_card_id = None 
         self.hand_cards = []  
         self.load_next_card()
         self.start_ticks = pygame.time.get_ticks()
-
-    
-   # def createQueue(self):
-      #  self.queue = pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((25, 50), (200, 700)), 2)
+        
+# def createQueue(self):
+    #  self.queue = pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((25, 50), (200, 700)), 2)
 
     def createPlayerHand(self):
         # Define the player hand area and return it for collision detection
-        self.playerhand = pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((25, 775), (1100, 150)), 2)
+        width = self.DISPLAY_W * 0.8
+        height = self.DISPLAY_H * 0.15
+        x = self.DISPLAY_W * 0.02
+        y = self.DISPLAY_H * 0.82
+        self.playerhand = pygame.draw.rect(self.screen, (255, 255, 255), pygame.Rect((x, y), (width, height)), 2)
         return self.playerhand
 
     def createDeck(self):
         # Draw the deck area where cards are placed
-        self.createdeck = pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((1175, 775), (250, 150)), 2)
+        width = self.DISPLAY_W * 0.13
+        height = self.DISPLAY_H * 0.15
+        x = self.DISPLAY_W * 0.84
+        y = self.DISPLAY_H * 0.82
+        self.createdeck = pygame.draw.rect(self.screen, (255, 255, 255), pygame.Rect((x, y), (width, height)), 2)
 
     def createArena(self):
         # Draw the arena where you get knocked out
-        self.arena = pygame.draw.rect(self.screen, ((255,255,255)), pygame.Rect((25, 50), (1400, 700)), 2)
-    
-    def createStage(self):
-        # Draw the stage area 
-        self.stage = pygame.draw.rect(self.screen, ((0, 0, 0)), pygame.Rect((150, 125), (1100, 525)), 2)
+        width = self.DISPLAY_W * 0.95
+        height = self.DISPLAY_H * 0.75
+        x = self.DISPLAY_W * 0.02
+        y = self.DISPLAY_H * 0.05
+        self.arena = pygame.draw.rect(self.screen, (255, 255, 255), pygame.Rect((x, y), (width, height)), 2)
 
+    def createStage(self):
+        width = self.DISPLAY_W * 0.8
+        height = self.DISPLAY_H * 0.625
+        x = self.DISPLAY_W * 0.10
+        y = self.DISPLAY_H * 0.11
+
+        # Create a surface for the stage
+        if not self.stage_initialized:
+            self.stage_surface = pygame.Surface((width, height))
+            self.stage_rect = pygame.Rect(x, y, width, height)
+            self.main_game.set_screen(self.stage_surface, width, height)
+            self.stage_initialized = True
+
+        # Blit the stage surface onto the main screen
+        self.screen.blit(self.stage_surface, (x, y))
+        # create stage border
+        self.stage = pygame.draw.rect(self.screen,(255, 255, 255),self.stage_rect, 2)
+
+        # Run the game loop
+        self.main_game.game_loop()
+        
 class Deck():
     def __init__(self, GameWorld):
         self.gameworld = GameWorld
@@ -265,11 +318,12 @@ class Deck():
 class PauseMenu:
     def __init__(self, GameWorld):
         self.gameworld = GameWorld
-        self.game = Game
+        self.game = self.gameworld.game
+        self.mainmenu = self.game.main_menu
         cwd = os.getcwd()
         self.fontpath = (os.path.join(cwd, 'Commodore Pixelized v1.2.ttf'))
         self.font = pygame.font.Font(self.fontpath, 40)  # Use the same font as the game
-        self.menu_options = ["Resume", "Restart", "Options", "Quit"]
+        self.menu_options = ["Resume", "Restart", "Options", "Main Menu", "Quit"]
         self.selected_option = 0  # Track which option is selected
         self.menu_active = False  # Track if the menu is active
         self.menu_rects = []  # Store button rects for each menu option
@@ -290,8 +344,8 @@ class PauseMenu:
         self.menu_x = (self.gameworld.DISPLAY_W // 2) - (self.menu_width // 2)
         self.menu_y = (self.gameworld.DISPLAY_H // 2) - (self.menu_height // 2)
 
-        pygame.draw.rect(self.gameworld.screen, (50, 50, 50), (self.menu_x, self.menu_y, self.menu_width, self.menu_height), 0)  # Menu box
-        pygame.draw.rect(self.gameworld.screen, (255, 255, 255), (self.menu_x, self.menu_y, self.menu_width, self.menu_height), 2)  # Menu border
+        pygame.draw.rect(self.gameworld.screen, (50, 50, 50), (self.menu_x, self.menu_y, self.menu_width, self.menu_height + 50), 0)  # Menu box
+        pygame.draw.rect(self.gameworld.screen, (255, 255, 255), (self.menu_x, self.menu_y, self.menu_width, self.menu_height + 50), 2)  # Menu border
 
         # Draw each option
         self.menu_rects = []
@@ -304,14 +358,22 @@ class PauseMenu:
 
     def handle_input(self):
         #Handle keyboard and mouse input for the pause menu.
+        self.last_key_time = 0
+        self.keys_cooldown = 150
+        self.current_time = pygame.time.get_ticks()
+        
         self.keys = pygame.key.get_pressed()
-        if self.keys == pygame.K_UP:
-            self.selected_option = (self.selected_option - 1) % len(self.menu_options)  # Cycle up through options
-        elif self.keys == pygame.K_DOWN:
-            self.selected_option = (self.selected_option + 1) % len(self.menu_options)  # Cycle down through options
+        if self.current_time - self.last_key_time > self.keys_cooldown:
+            if self.keys == pygame.K_UP:
+                self.selected_option = (self.selected_option - 1) % len(self.menu_options)  # Cycle up through options
+                self.last_key_time = self.current_time
+            elif self.keys == pygame.K_DOWN:
+                self.selected_option = (self.selected_option + 1) % len(self.menu_options)  # Cycle down through options
+                self.last_key_time = self.current_time
 
-        if self.keys == pygame.K_RETURN:
-            self.select_option()
+            if self.keys == pygame.K_RETURN:
+                self.select_option()
+                self.last_key_time = self.current_time
 
         # Handle mouse input
         self.mouse_pos = pygame.mouse.get_pos()
@@ -324,15 +386,22 @@ class PauseMenu:
     def select_option(self):
         #Perform action based on the selected option.
         if self.menu_options[self.selected_option] == "Resume":
-            self.toggle_menu()  # Close the pause menu and resume the game
+            self.menu_active = False
+          # Close the pause menu and resume the game
         elif self.menu_options[self.selected_option] == "Restart":
-            self.toggle_menu()  # Close the pause menu
+            self.menu_active = False  # Close the pause menu
             self.gameworld.reset()
             self.gameworld.run()  # Restart the game loop
         elif self.menu_options[self.selected_option] == "Options":
             # add a new options page instead
-            self.gameworld.curr_menu = self.gameworld.game.options
-            self.toggle_menu()
+            self.menu_active = False
+        elif self.menu_options[self.selected_option] == "Main Menu":
+            self.menu_active = False
+            self.game.playing = False
+            self.gameworld.reset()
+            self.mainmenu.displayMenu() # stop game loop
+            self.game.game_loop()
+            self.gameworld.run()  # Restart the game loop
         elif self.menu_options[self.selected_option] == "Quit":
             pygame.quit()
             sys.exit()
