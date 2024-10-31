@@ -4,45 +4,60 @@ import queue
 class Deck():
     def __init__(self) -> None:
         self.deck = self.create_deck()
+        self.combos = self.combo_list()
         self.sections = []
         print("deck created")
         
     def create_deck(self) -> list:
         # dictionary to describe cards
-        # format: [name, description, card rarity, player movement = (dx,dy, ratio to shrink/expand char), enemy movement = (dx,dy, ratio), range, self dmg, enemy dmg]
-        # deck[len(deck)+1] = ["", "", (0,0,1), (0,0,1), 0, 0]
+        # format: [id, name, description, card rarity, player movement = (dx,dy, ratio to shrink/expand char), enemy movement = (dx,dy, ratio), range, self dmg, enemy dmg]
         # common cards - total 6
         deck = dict()
-        deck[len(deck)+1] = ["Forward", "Moves Left",0, [5,0,1], [0,0,1], [0,0], 0, 0]
-        deck[len(deck)+1] = ["Backward", "Moves right",0, [-5,0,1], [0,0,1], [0,0], 0, 0]
-        deck[len(deck)+1] = ["Jump", "Jump",0,[0,-15,1], [0,0,1], [0,0], 0, 0]
-        deck[len(deck)+1] = ["Move Down", "Moves down",0,[0,15,1], [0,0,1], [0,0], 0, 0]
-        deck[len(deck)+1] = ["Duck", "Duck down",0,[0,0,0.5], [0,0,1], [0,0], 0, 0]
-        deck[len(deck)+1] = ["Kick", "A kick aimed towards the family jewels",0,[0,0,1],[5,0,1], [0.5,0.5], 0, 5]
+        deck[len(deck)+1] = [1, "Forward", "Move Forwards",0, [30,0,1], [0,0,1], [0,0], 0, 0] # 01
+        deck[len(deck)+1] = [2, "Backward", "Move Backwards",0, [-30,0,1], [0,0,1], [0,0], 0, 0] # 02
+        deck[len(deck)+1] = [3, "Up", "Aim upwards",0,[0,-30,1], [0,0,1], [0,0], 0, 0] #03
+        deck[len(deck)+1] = [4, "Move Down", "Moves down",0,[0,30,1], [0,0,1], [0,0], 0, 0] # 04
+        deck[len(deck)+1] = [5, "Duck", "Duck down",0,[0,0,0.5], [0,0,1], [0,0], 0, 0] # 05
+        deck[len(deck)+1] = [6, "Kick", "A kick aimed towards the family jewels",0,[0,0,1],[10,0,1], [0.5,0.5], 0, 5] # 06
         
         # rare cards - total 5
-        deck[len(deck)+1] = ["Back Kick", "Happy de ume tsukushite",1,[0,0,1], [0,0,1], [0.5,0.5]] # direction opposite orientation + kick
-        deck[len(deck)+1] = ["Flying Kick", "Soaring through the air feet first",[-5,-15,1], [0,0,1], [0.5,0.5]] # up + direction + kick 
-        deck[len(deck)+1] = ["Roundhouse Kick", "A kick with extra knockback",1,[0,0,1], [0,0,1], [0.5,1]] # left + right + kick or right + left + kick
-        deck[len(deck)+1] = ["Axe Kick", "A kick with a chance to stun",1,[0,0,1], [0,0,1], [0.5,1]] # up + down + kick
-        deck[len(deck)+1] = ["Knee Strike", "A quick knee to the chin",1,[0,0,1], [0,0,1], [0.5,0.5]] # up + kick
-        deck[len(deck)+1] = ["Spin","You some kind of ballerina?",1,[0,0,1], [0,0,1], [0,0]] # left + right + left
-        deck[len(deck)+1] = ["Leap","Its like jumping twice",1,[0,-30,1], [0,0,1], [0,0]] # up + up + up
+        deck[len(deck)+1] = [7, "Back Kick", "Happy de ume tsukushite",1,[0,0,1], [0,0,1], [0.5,0.5],0,10] # 07, backwards + kick 
+        deck[len(deck)+1] = [8, "Roundhouse Kick", "A kick with extra knockback",1,[0,0,1], [0,0,1], [0.5,1],0,10] # 08, up + forwards + kick
+        deck[len(deck)+1] = [9, "Axe Kick", "A kick with a chance to stun",1,[0,0,1], [0,0,1], [0.5,1],0,10] # 09, up + down + kick
+        deck[len(deck)+1] = [10, "Knee Strike", "A quick knee to the chin",1,[0,0,1], [0,0,1], [0.5,1],0,10] # 10, up + kick
+        deck[len(deck)+1] = [11, "Spin","You some kind of ballerina?",1,[0,0,1], [0,0,1], [0,0],0,0] # 11, backwards + forwards + back
+        deck[len(deck)+1] = [12, "Jump","",1,[0,-30,1], [0,0,1], [0,0],0,0] # 12, up + up
 
 
         # epic cards - total 3
-        deck[len(deck)+1] = ["Spinning Back Kick", "A powerful spinning kick",2,[0,0,1], [0,0,1], [0.5,0]] # spin + back kick
-        deck[len(deck)+1] = ["Flying Knee", "",2,[10,15,1], [0,0,1], [0.5,0.5]] # direction + direction + knee strike
-        deck[len(deck)+1] = ["Tornado Kick", "Let it rip!",2,[0,0,1], [0,0,1], [0.5,1]] # spin + roundhouse kick
-        deck[len(deck)+1] = ["Sky Drop","",2,[0,-15,1], [0,0,1], [0.5,1.5]]
+        deck[len(deck)+1] = [13, "Spinning Back Kick", "A powerful spinning kick",2,[0,0,1], [0,0,1], [0.5,0],0,20] #13, spin + back kick
+        deck[len(deck)+1] = [14, "Flying Knee", "",2,[20,15,1], [0,0,1], [0.5,0.5],0,20] #14, jump + forward + knee
+        deck[len(deck)+1] = [15, "Tornado Kick", "Let it rip!",2,[0,0,1], [0,0,1], [0.5,1],0,20] # spin + roundhouse kick
+        deck[len(deck)+1] = [16, "Flying Kick", "Soaring through the air feet first",[-20,-15,1], [0,0,1], [0.5,0.5],0,10] # jump + forward + kick
         # rdm drug
 
 
         # legendary careds
-        deck[len(deck)+1] = ["Roids", "Jump Higher, Run Faster Kick Harder",3] # add a multiplier to outgoing dmg
+        deck[len(deck)+1] = [17, "Roids", "Jump Higher, Run Faster Kick Harder",3] # add a multiplier to outgoing dmg
         
 
         return deck
+    
+    def combo_list(self):
+        combos = dict()
+        combos["20600"] = [7,"Back Kick", "Happy de ume tsukushite",1,[0,0,1], [0,0,1], [0.5,0.5],0,15]
+        combos["30106"] = [8,"Roundhouse Kick", "A kick with extra knockback",1,[0,0,1], [0,0,1], [0.5,1],0,15]
+        combos["30406"] = [9,"Axe Kick", "A kick with a chance to stun",1,[0,0,1], [0,0,1], [0.5,1],0,15]
+        combos["30600"] = [10,"Knee Strike", "A quick knee to the chin",1,[0,0,1], [0,0,1], [0.5,1],0,15]
+        combos["20102"] = [11,"Spin","You some kind of ballerina?",1,[0,0,1], [0,0,1], [0,0],0,0] # change to taunt?
+        combos["30300"] = [12,"Jump","",1,[0,-30,1], [0,0,1], [0,0],0,0] # taunt?
+        combos["110700"] = [13,"Spinning Back Kick", "A powerful spinning kick",2,[0,0,1], [0,0,1], [0.5,0],0,25]
+        combos["120110"] = [14,"Flying Knee", "",2,[20,15,1], [0,0,1], [0.5,0.5],0,25]
+        combos["110800"] = [15,"Tornado Kick", "Let it rip!",2,[0,0,1], [0,0,1], [0.5,1],0,25]
+        combos["120106"] = [16,"Flying Kick", "Soaring through the air feet first",[-20,-15,1], [0,0,1], [0.5,0.5],0,25]
+        
+
+        return combos
 
     def get_card_name(self, id: int) -> str:
         return self.deck[id][0]
@@ -92,14 +107,24 @@ class Deck():
 
     def draw_card(self, lower:int, upper:int) -> int:
         return self.deck[random.randint(lower, upper)]
+    
 # checks combo if game queue is in the form of a FIFO queue
-def check_combo_q(q:queue):
-    multiplier = 10000
-    combo_id = 0
-    while not q.empty():
-        combo_id += q.get() * multiplier
-        multiplier /= 100
-    return combo_id
+    def check_combo(self, pqueue):
+        multiplier = 10000
+        combo_id = 0
+        temp = []
+        while not(pqueue.empty()):
+            i = pqueue.get()
+            combo_id += i[0] * multiplier
+            multiplier = multiplier / 100
+            temp.append(i)
+        combo_id = str(int(combo_id))
+        print(combo_id)
+        if combo_id in self.combos.keys():
+            print("Combo made")
+            return [self.combos[combo_id]]
+        return temp
+
 def check_combo_l(l:list):
     multiplier = 10000
     combo_id = 0
