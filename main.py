@@ -1,4 +1,5 @@
 import pygame 
+import time
 from fighter import Fighter
 from deck import *
 
@@ -9,7 +10,7 @@ SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 
 # create screen display
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+screen = pygame.display.set_mode(size=(1000, 600))
 pygame.display.set_caption("Brawler")
 
 # set frame rate
@@ -52,9 +53,7 @@ WIZARD_ANIMATION_STEPS = [8, 8, 1, 8, 8, 3, 7]
 def draw_health_bar(health, x, y):
     ratio = health / 100
     # pygame.draw.rect(screen, WHITE, (x - 2, y - 2, 404, 34))
-    # pygame.draw.rect(screen, RED, (x, y, 400, 30))
-    # pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
-
+    # pygame.draw.rect(screen, RED, (x, y, 400, 30))    # pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
 deck = Deck()
 
 # create two objects of fighter
@@ -86,11 +85,11 @@ while run:
 
     print("-------player pos-------")
     print("p1 ", fighter_1.rect.x, fighter_1.rect.y)
-    print("p2 ", fighter_2.rect.x, fighter_2.rect.y)
+    # print("p2 ", fighter_2.rect.x, fighter_2.rect.y)
 
     print ("-------draw card-------")
-    fighter_1.print_cards()
-    fighter_2.print_cards()
+    print(fighter_1.playerhand)
+    # print(fighter_2.playerhand)
 
     print ("-------p1 turn-------")
     for i in range(0,3):
@@ -98,7 +97,8 @@ while run:
         if choice > len(fighter_1.playerhand)-1 or choice < 0 or len(fighter_1.playerhand) == 0:
             break
         fighter_1.add_card(fighter_1.playerhand[choice])
-        print("remaining cards ",fighter_1.playerhand)
+        print("remaining cards ")
+        print(fighter_1.playerhand)
         
     print ("-------p2 turn-------")
     for i in range(0,3):
@@ -106,23 +106,33 @@ while run:
         if choice > len(fighter_2.playerhand)-1 or choice < 0 or len(fighter_2.playerhand) == 0:
             break
         fighter_2.add_card(fighter_2.playerhand[choice])
-        print("remaining cards ",fighter_2.playerhand)
+        print("remaining cards ")
+        print(fighter_2.playerhand)
 
+    print("-------Check 4 combo-------")
+    f1_queue = deck.check_combo(fighter_1.playerqueue)
+    f2_queue = deck.check_combo(fighter_2.playerqueue)
+    print('f1 queue: ',f1_queue)
+    print('f2 queue', f2_queue)
     print("-------playing cards-------")
-    while (not fighter_2.playerqueue.empty()) or (not fighter_1.playerqueue.empty()):
+    while (not f1_queue) or (not f2_queue):
         print("end turn")
-        if not fighter_1.playerqueue.empty():
-            f1_action = fighter_1.playerqueue.get()
+        # reset hitbox
+        f1_hitbox = f2_hitbox = pygame.Rect((0,0,0,0));
+        if not f1_queue:
+            f1_action = f1_queue[0]
             print('p1 action: ',f1_action)
             f1_hitbox = fighter_1.create_hitbox(f1_action)
-            fighter_1.card_move(f1_action[3], fighter_2)
-            
-            print("p1 ", fighter_1.rect.x, fighter_1.rect.y)
-        if not fighter_2.playerqueue.empty():
-            f2_action = fighter_2.playerqueue.get()
+            fighter_1.card_move(f1_action[4], fighter_2)
+            del f1_queue[0]
+
+        if not f2_queue:
+            f2_action = f2_queue[0]
             print('p2 action: ', f2_action)
             f2_hitbox = fighter_2.create_hitbox(f2_action)
-            fighter_2.card_move(f2_action[3], fighter_1)
+            fighter_2.card_move(f2_action[4], fighter_1)
+            del f2_queue[0]
+
         # draw_bg()
         screen.fill('black')
         pygame.display.flip()
@@ -130,19 +140,22 @@ while run:
         # draw fighters
         fighter_1.draw(screen)
         fighter_2.draw(screen)
+
         pygame.draw.rect(screen, (255,0,0), f1_hitbox)
         pygame.draw.rect(screen, (255,0,0), f2_hitbox)
+
+        pygame.display.update()
 
         print("-------Detect Collision-------")
         if f1_hitbox.colliderect(fighter_2.rect):
             print("f2 hit")
-            fighter_2.health -= f1_action[7]
-            fighter_2.card_move(f1_action[4], fighter_1)
+            fighter_2.health -= f1_action[8]
+            fighter_2.card_move(f1_action[5], fighter_1)
         if f2_hitbox.colliderect(fighter_1.rect):
             print("f1 hit")
-            fighter_1.health -= f2_action[7]
-            fighter_1.card_move(f2_action[4], fighter_2)
-
+            fighter_1.health -= f2_action[8]
+            fighter_1.card_move(f2_action[5], fighter_2)
+        input()
 
     print("-------filling hand-------")
     fighter_1.playerhand.append(deck.fill_hand(3-len(fighter_1.playerhand),50))
