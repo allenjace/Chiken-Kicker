@@ -172,12 +172,6 @@ class Fighter():
             if (opp.rect.x < self.rect.x + move[0]) and opp.rect.x > self.rect.x + self.rect.w:
                 return True
         return False
-    
-    def print_cards(self):
-        temp =[]
-        for i in self.playerhand:
-            temp.append(i)
-        print(temp)
 
     def create_hitbox(self, action):
         # creates a hitbox for the related move, will create on the side closest to 
