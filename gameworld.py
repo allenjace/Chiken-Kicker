@@ -21,7 +21,7 @@ class GameWorld:
 
         self.screeninfo = pygame.display.Info()
         self.DISPLAY_W, self.DISPLAY_H = self.screeninfo.current_w, self.screeninfo.current_h
-        self.screen = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.FULLSCREEN | pygame.SCALED | pygame.HWSURFACE | pygame.DOUBLEBUF)
+        self.screen = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.FULLSCREEN | pygame.SCALED)
         #self.screen.fill((0, 205, 255))
         # Set up font and its path
         cwd = os.getcwd()
@@ -176,6 +176,7 @@ class GameWorld:
 
             # Update display
             pygame.display.flip()
+            
     def addcommon_cards(self):
         # initalize the 5 common cards that will always be in the player hand
         self.commoncard_names = ["Move Left", "Move Right", "Move Up", "Move Down", "Kick"]
@@ -183,21 +184,48 @@ class GameWorld:
         # locate and store the IDs of the common cards
         for card_id, card_data in self.carddeck.deck.items():
             if card_data[0] in self.commoncard_names and len(self.common_cards) < 5:
-                # Load the card image
+                # Load base card image
                 image_path = self.carddeck.get_card_img(card_id)
-                self.card_images[card_id] = pygame.image.load(image_path).convert_alpha()
+                base_card = pygame.image.load(image_path).convert_alpha()
+                
+                # Create a copy to draw on
+                card_with_text = base_card.copy()
+                
+                # Get card name
+                card_name = self.carddeck.get_card_name(card_id)
+                
+                # Render card name
+                font = pygame.font.Font(self.fontpath, 20)  # Smaller font for card name
+                self.draw_text_on_card(card_with_text, card_name, font, (0, 0, 0))
+                
+                self.card_images[card_id] = card_with_text
                 self.common_cards.append(card_id)
                 
         # Remove these cards from the shuffled deck
         for card_id in self.common_cards:
             if card_id in self.carddeck.shuffled_deck:
                 self.carddeck.shuffled_deck.remove(card_id)
+                
     def load_next_card(self):
         #Load the next card from the deck into the deck area.
         if self.carddeck.shuffled_deck:
             self.current_card_id = self.carddeck.shuffled_deck.pop(0)  # Get the next card
-            image_path = self.carddeck.get_card_img(self.current_card_id)
-            self.card_images[self.current_card_id] = pygame.image.load(image_path).convert_alpha()
+            image_path = self.carddeck.get_card_img(self.current_card_id) # get the card image file path
+            # Load base card image
+            base_card = pygame.image.load(image_path).convert_alpha()
+            
+            # Create a copy to draw on
+            card_with_text = base_card.copy()
+            
+            # Get card name 
+            card_name = self.carddeck.get_card_name(self.current_card_id)
+            
+            # Render card name
+            font = pygame.font.Font(self.fontpath, 20)  # Smaller font for card name
+            self.draw_text_on_card(card_with_text, card_name, font, (0, 0, 0)) # black text on the card
+
+            self.card_images[self.current_card_id] = card_with_text # store completed card into the card image dictionary
+            
             # Position card within the deck area
             self.card_width, self.card_height = self.card_images[self.current_card_id].get_size()
             self.card_x = int(self.DISPLAY_W * 0.86)  # Assuming 1920x1080 as base resolution
@@ -207,7 +235,37 @@ class GameWorld:
             self.card_rects[self.current_card_id] = self.card_images[self.current_card_id].get_rect(topleft=(self.card_x, self.card_y))
         else:
             self.current_card_id = None  # No more cards in the deck
+            
+    def wrap_text_to_card(self, text, font, max_width): # text wrapping for the text inside the card
+        words = text.split(' ')
+        lines = []
+        current_line = words[0]
+        
+        for word in words[1:]:
+            test_line = current_line + " " + word
+            if font.size(test_line)[0] <= max_width:
+                current_line = test_line
+            else:
+                lines.append(current_line)
+                current_line = word
+        
+        lines.append(current_line)
+        return lines
 
+    def draw_text_on_card(self, card_surface, text, font, color): # draw text on the card
+        max_width = int(card_surface.get_width() * 0.70)  # 70% of card width
+        lines = self.wrap_text_to_card(text, font, max_width)
+        
+        line_height = font.get_linesize()
+        total_height = len(lines) * line_height
+        y = 20  # Starting y position
+        
+        for line in lines:
+            text_surface = font.render(line, True, color)
+            x = (card_surface.get_width() - text_surface.get_width()) // 2
+            card_surface.blit(text_surface, (x, y))
+            y += line_height
+        
     def countdown_timer(self, elapsed_time): # create a countdown timer of 5 minutes
         remaining_time = self.start_time - elapsed_time
         remaining_time = max(0, remaining_time)
@@ -220,14 +278,12 @@ class GameWorld:
     
     def card_info(self, card_name, card_description, rect):
         font = pygame.font.SysFont(None, 24)
-        cardname_text = font.render(card_name, True, (255, 255, 255))
         description_text = font.render(card_description, True, (255, 255, 255))
         info_x = rect.right + 10
         info_y = rect.top + 25
         
-        pygame.draw.rect(self.screen, (0, 0, 0), (info_x, info_y, 225, 60))
-        self.screen.blit(cardname_text, (info_x + 5, info_y + 5))
-        self.screen.blit(description_text, (info_x + 5, info_y + 30))
+        pygame.draw.rect(self.screen, (0, 0, 0), (info_x, info_y, 225, 50))
+        self.screen.blit(description_text, (info_x + 5, info_y + 15))
     
     def reset(self):
         self.stage_initialized = False
@@ -293,27 +349,28 @@ class GameWorld:
         y = self.DISPLAY_H * 0.05
         self.arena = pygame.draw.rect(self.screen, (255, 255, 255), pygame.Rect((x, y), (width, height)), 2)
 
-    def createStage(self):
-        width = self.DISPLAY_W * 0.8
-        height = self.DISPLAY_H * 0.625
-        x = self.DISPLAY_W * 0.10
-        y = self.DISPLAY_H * 0.11
+    def createStage(self): 
+        # draw the stage area 
+        width = self.DISPLAY_W * 0.8 # 80 percent of the display's width
+        height = self.DISPLAY_H * 0.625 # 62.5 percent of the displays height
+        x = self.DISPLAY_W * 0.10 # 10 percent of the display's width
+        y = self.DISPLAY_H * 0.11 # 11 percent of the display's height
         
         # Initialize surfaces once
         if not self.stage_initialized:
-            self.stage_surface = pygame.Surface((width, height))
-            self.card_surface = pygame.Surface((width, height), pygame.SRCALPHA)
-            self.stage_rect = pygame.Rect(x, y, width, height)
-            self.main_game.set_screen(self.stage_surface, width, height)
-            if not hasattr(self, 'running_cards'):
+            self.stage_surface = pygame.Surface((width, height)) # create the surface for the game stage
+            self.card_surface = pygame.Surface((width, height), pygame.SRCALPHA)  # create a surface for the cards with transparency (srcalpha)
+            self.stage_rect = pygame.Rect(x, y, width, height) # creates a rectangle that defines the stage boundaries and is used for collision detection
+            self.main_game.set_screen(self.stage_surface, width, height) # sets up the main game screen using the height and width of the stage
+            if not hasattr(self, 'running_cards'): # keeps track of the cards that are currently placed above player
                 self.running_cards = []
-            self.stage_initialized = True
+            self.stage_initialized = True # true when the stage is initialized
         
         # Draw stage content first
         self.screen.blit(self.stage_surface, (x, y))
           
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE] and len(self.running_cards) == 3:
+        if keys[pygame.K_SPACE] and len(self.running_cards) == 3: # when you press space and the active card count is 3
             # Clear all cards
             self.running_cards.clear()
             self.card_display_times.clear()
@@ -321,26 +378,23 @@ class GameWorld:
 
         # Draw remaining active cards
         if self.running_cards:
-            fighter_pos = self.main_game.fighter_1.rect
-            card_spacing = 100
-            base_x = fighter_pos.centerx - (len(self.running_cards) * card_spacing) // 2
+            fighter_pos = self.main_game.fighter_1.rect #get the player position to anchor the cards
+            card_spacing = 100 # card space
+            base_x = fighter_pos.centerx - (len(self.running_cards) * card_spacing) // 2 # calculate starting x to center cards abbove player/centers group of cards by accounting for total width
             
-            for i, card_id in enumerate(self.running_cards): # place above the player head
-                card_x = base_x + (i * card_spacing) + 100
-                card_y = fighter_pos.top - self.card_height  + 50
+            for i, card_id in enumerate(self.running_cards): # draw each active card 
+                card_x = base_x + (i * card_spacing) + 100 # card spacing with an offset from the base position
+                card_y = fighter_pos.top - self.card_height  + 50 # place above the player head with an offset
                 
-                # Store the position for collision detection
+                # Store the position for collision detection and management of cards
                 self.card_positions[card_id] = (card_x, card_y)
                 
-                # Draw directly to screen instead of card_surface
-                # Draw the card
+                # Draw the card if it is in the card images dictionary
                 if card_id in self.card_images:
                     self.screen.blit(self.card_images[card_id], (card_x, card_y))
         
         # Update game state
         self.main_game.game_loop()
-        # Draw stage border
-        #self.stage = pygame.draw.rect(self.screen, (255, 255, 255), self.stage_rect, 2)
         
 class Deck(): # placeholder deck, will remove 
     def __init__(self, GameWorld):
