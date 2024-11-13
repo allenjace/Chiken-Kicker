@@ -1,9 +1,6 @@
 Team 2:
 
-Students:
-Ryan Lu
-Kenny Garcia
-Allen Jace Pulido
+Students: Ryan Lu, Kenny Garcia, Allen Jace Pulido
 
 Project: Chicken Kicker
 
