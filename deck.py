@@ -1,44 +1,48 @@
 import random
 import queue
+import os
+
+cwd = os.getcwd()
 
 class Deck():
-    def __init__(self) -> None:
+    def __init__(self, GameWorld):
+        self.gameworld = GameWorld
         self.deck = self.create_deck()
-        self.combos = self.combo_list()
-        self.sections = []
-        print("deck created")
+        self.shuffled_deck = list(self.deck.keys())  # Shuffle the deck
+        random.shuffle(self.shuffled_deck)
         
     def create_deck(self) -> list:
         # dictionary to describe cards
         # format: [id, name, description, card rarity, player movement = (dx,dy, ratio to shrink/expand char), enemy movement = (dx,dy, ratio), range, self dmg, enemy dmg]
         # common cards - total 6
         deck = dict()
-        deck[len(deck)+1] = [1, "Forward", "Move Forwards",0, [30,0,1], [0,0,1], [0,0], 0, 0] # 01
-        deck[len(deck)+1] = [2, "Backward", "Move Backwards",0, [-30,0,1], [0,0,1], [0,0], 0, 0] # 02
-        deck[len(deck)+1] = [3, "Up", "Aim upwards",0,[0,-30,1], [0,0,1], [0,0], 0, 0] #03
-        deck[len(deck)+1] = [4, "Move Down", "Moves down",0,[0,30,1], [0,0,1], [0,0], 0, 0] # 04
-        deck[len(deck)+1] = [5, "Duck", "Duck down",0,[0,0,0.5], [0,0,1], [0,0], 0, 0] # 05
-        deck[len(deck)+1] = [6, "Kick", "A kick aimed towards the family jewels",0,[0,0,1],[10,0,1], [0.5,0.5], 0, 5] # 06
+        deck[len(deck)+1] = [1, "Move Forward", "Move Forward","common",'card images/backwards.png', [30,0,1], [0,0,1], [0,0], 0, 0] # 01
+        deck[len(deck)+1] = [2, "Move Backward", "Move Backward","common",'card images/forwards.png', [-30,0,1], [0,0,1], [0,0], 0, 0] # 02
+        deck[len(deck)+1] = [3, "Move Up", "Aim upwards","common",'card images/up.png',[0,-30,1], [0,0,1], [0,0], 0, 0] #03
+        deck[len(deck)+1] = [4, "Move Down", "Moves down","common",'card images/down.png',[0,30,1], [0,0,1], [0,0], 0, 0] # 04
+        deck[len(deck)+1] = [5, "Duck", "Duck down","common",'card images/common_card.png',[0,0,0.5], [0,0,1], [0,0], 0, 0] # 05
+        deck[len(deck)+1] = [6, "Kick", "A kick aimed towards the family jewels","common",'card images/common_card.png',[0,0,1],[10,0,1], [0.5,0.5], 0, 5] # 06
         
         # rare cards - total 5
-        deck[len(deck)+1] = [7, "Back Kick", "Happy de ume tsukushite",1,[0,0,1], [0,0,1], [0.5,0.5],0,10] # 07, backwards + kick 
-        deck[len(deck)+1] = [8, "Roundhouse Kick", "A kick with extra knockback",1,[0,0,1], [0,0,1], [0.5,1],0,10] # 08, up + forwards + kick
-        deck[len(deck)+1] = [9, "Axe Kick", "A kick with a chance to stun",1,[0,0,1], [0,0,1], [0.5,1],0,10] # 09, up + down + kick
-        deck[len(deck)+1] = [10, "Knee Strike", "A quick knee to the chin",1,[0,0,1], [0,0,1], [0.5,1],0,10] # 10, up + kick
-        deck[len(deck)+1] = [11, "Spin","You some kind of ballerina?",1,[0,0,1], [0,0,1], [0,0],0,0] # 11, backwards + forwards + back
-        deck[len(deck)+1] = [12, "Jump","",1,[0,-30,1], [0,0,1], [0,0],0,0] # 12, up + up
+        deck[len(deck)+1] = [7, "Back Kick", "Happy de ume tsukushite","rare",'card images/rare_card.png',[0,0,1], [0,0,1], [0.5,0.5],0,10] # 07, backwards + kick 
+        deck[len(deck)+1] = [8, "Roundhouse Kick", "A kick with extra knockback","rare",'card images/rare_card.png',[0,0,1], [0,0,1], [0.5,1],0,10] # 08, up + forwards + kick
+        deck[len(deck)+1] = [9, "Axe Kick", "A kick with a chance to stun","rare",'card images/rare_card.png',[0,0,1], [0,0,1], [0.5,1],0,10] # 09, up + down + kick
+        deck[len(deck)+1] = [10, "Knee Strike", "A quick knee to the chin","rare",'card images/rare_card.png',[0,0,1], [0,0,1], [0.5,1],0,10] # 10, up + kick
+        deck[len(deck)+1] = [11, "Spin","You some kind of ballerina?","rare",'card images/rare_card.png',[0,0,1], [0,0,1], [0,0],0,0] # 11, backwards + forwards + back
+        deck[len(deck)+1] = [12, "Leap","","rare",'card images/rare_card.png',[0,-30,1], [0,0,1], [0,0],0,0] # 12, up + up
 
 
         # epic cards - total 3
-        deck[len(deck)+1] = [13, "Spinning Back Kick", "A powerful spinning kick",2,[0,0,1], [0,0,1], [0.5,0],0,20] #13, spin + back kick
-        deck[len(deck)+1] = [14, "Flying Knee", "",2,[20,15,1], [0,0,1], [0.5,0.5],0,20] #14, jump + forward + knee
-        deck[len(deck)+1] = [15, "Tornado Kick", "Let it rip!",2,[0,0,1], [0,0,1], [0.5,1],0,20] # spin + roundhouse kick
-        deck[len(deck)+1] = [16, "Flying Kick", "Soaring through the air feet first",[-20,-15,1], [0,0,1], [0.5,0.5],0,10] # jump + forward + kick
+        deck[len(deck)+1] = [13, "Spinning Back Kick", "A powerful spinning kick","epic",'card images/epic_card.png',[0,0,1], [0,0,1], [0.5,0],0,20] #13, spin + back kick
+        deck[len(deck)+1] = [14, "Flying Knee", "","epic",'card images/epic_card.png',[20,15,1], [0,0,1], [0.5,0.5],0,20] #14, jump + forward + knee
+        deck[len(deck)+1] = [15, "Tornado Kick", "Let it rip!","epic",'card images/epic_card.png',[0,0,1], [0,0,1], [0.5,1],0,20] # spin + roundhouse kick
+        deck[len(deck)+1] = [16, "Flying Kick", "Soaring through the air feet first","epic",'card images/epic_card.png',[-20,-15,1], [0,0,1], [0.5,0.5],0,10] # jump + forward + kick
         # rdm drug
 
 
         # legendary careds
-        deck[len(deck)+1] = [17, "Roids", "Jump Higher, Run Faster Kick Harder",3] # add a multiplier to outgoing dmg
+        deck[len(deck)+1] = [17, "Roids", "Jump Higher, Run Faster Kick Harder","Legendary",'card images/legendary_card.png'] # add a multiplier to outgoing dmg
+        deck[len(deck)+1] = [18, "Lucky Strike", "Deal double damage on your next hit","Legendary",'card images/legendary_card.png'] # add a multiplier to outgoing dmg
         
 
         return deck
@@ -60,18 +64,15 @@ class Deck():
         return combos
 
     def get_card_name(self, id: int) -> str:
-        return self.deck[id][0]
-    
-    def get_card_movement(self, id:int) -> list:
         return self.deck[id][1]
-    
-    def get_card_attack(self, id:int) -> list:
+
+    def get_card_description(self, id: int) -> str:
         return self.deck[id][2]
     
-    def get_card_description(self, id:int) -> str:
-        return self.deck[id][3]
+    def get_card_img(self, id: int) -> str:
+        return os.path.join(cwd, self.deck[id][4])
     
-    def get_card_img(self, id:int) -> str:
+    def get_card_file_path(self, id:int) -> str:
         return self.deck[id][4]
 
     # takes in n number of cards to draw and time left in game, will return n sized list
@@ -119,7 +120,6 @@ class Deck():
             multiplier = multiplier / 100
             temp.append(i)
         combo_id = str(int(combo_id))
-        print(combo_id)
         if combo_id in self.combos.keys():
             print("Combo made")
             return [self.combos[combo_id]]
