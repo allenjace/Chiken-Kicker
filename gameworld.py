@@ -93,6 +93,37 @@ class GameWorld:
                         self.running = False
                     if event.key == pygame.K_ESCAPE:  # Toggle pause menu
                         self.pause_menu.toggle_menu()
+                    for event in events:
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_BACKSPACE or event.key == pygame.K_RETURN:
+                        self.game.playing = False
+                        self.game.curr_menu = self.game.main_menu
+                        self.running = False
+                    if event.key == pygame.K_ESCAPE:  # Toggle pause menu
+                        self.pause_menu.toggle_menu()
+                    if (event.key == pygame.K_1 or event.key == pygame.K_KP_1) and len(self.running_cards) < 3:
+                        card = self.common_cards[0]
+                        self.running_cards.append(card)
+                        self.card_display_times[card] = pygame.time.get_ticks()
+                    if (event.key == pygame.K_2 or event.key == pygame.K_KP_2) and len(self.running_cards) < 3:
+                        card = self.common_cards[1]
+                        self.running_cards.append(card)
+                        self.card_display_times[card] = pygame.time.get_ticks()
+                    if (event.key == pygame.K_3 or event.key == pygame.K_KP_3) and len(self.running_cards) < 3:
+                        card = self.common_cards[2]
+                        self.running_cards.append(card)
+                        self.card_display_times[card] = pygame.time.get_ticks()
+                    if (event.key == pygame.K_4 or event.key == pygame.K_KP_4) and len(self.running_cards) < 3:
+                        card = self.common_cards[3]
+                        self.running_cards.append(card)
+                        self.card_display_times[card] = pygame.time.get_ticks()
+                    if (event.key == pygame.K_5 or event.key == pygame.K_KP_5) and len(self.running_cards) < 3:
+                        card = self.common_cards[4]
+                        self.running_cards.append(card)
+                        self.card_display_times[card] = pygame.time.get_ticks()
                 # Handle mouse events
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1: # LMB for dragging the card from deck
