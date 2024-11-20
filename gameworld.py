@@ -252,8 +252,8 @@ class GameWorld:
             card_name = self.carddeck.get_card_name(card_id)
             
             # Render card name
-            font = pygame.font.Font(self.fontpath, 20)
-            self.draw_text_on_card(card_with_text, card_name, font, (0, 0, 0))
+            font = pygame.font.Font(self.fontpath, 12)
+            self.draw_text_on_card(card_with_text, card_name, font, (255, 255, 255))
             
             self.card_images[card_id] = card_with_text
             self.common_cards.append(card_id)
@@ -280,8 +280,8 @@ class GameWorld:
                 
                 # Get and render card name
                 card_name = self.carddeck.get_card_name(newcard_id)
-                font = pygame.font.Font(self.fontpath, 20)
-                self.draw_text_on_card(card_with_text, card_name, font, (0, 0, 0))
+                font = pygame.font.Font(self.fontpath, 12)
+                self.draw_text_on_card(card_with_text, card_name, font, (255, 255, 255))
                 
                 self.card_images[newcard_id] = card_with_text
                 self.random_cards.append(newcard_id)            
@@ -308,8 +308,8 @@ class GameWorld:
                 card_with_text = base_card.copy()
                 
                 # Render card name
-                font = pygame.font.Font(self.fontpath, 20)
-                self.draw_text_on_card(card_with_text, card_name, font, (0, 0, 0))
+                font = pygame.font.Font(self.fontpath, 12)
+                self.draw_text_on_card(card_with_text, card_name, font, (255, 255, 255))
                 
                 self.card_images[self.current_card_id] = card_with_text
                 
@@ -338,8 +338,8 @@ class GameWorld:
             base_card = pygame.image.load(image_path).convert_alpha()
             card_with_text = base_card.copy()
             card_name = self.carddeck.get_card_name(self.current_card_id)
-            font = pygame.font.Font(self.fontpath, 20)
-            self.draw_text_on_card(card_with_text, card_name, font, (0, 0, 0))
+            font = pygame.font.Font(self.fontpath, 12)
+            self.draw_text_on_card(card_with_text, card_name, font, (255,255,255))
             self.card_images[self.current_card_id] = card_with_text
             self.card_width, self.card_height = self.card_images[self.current_card_id].get_size()
             self.card_x = int(self.DISPLAY_W * 0.86)
@@ -488,11 +488,11 @@ class GameWorld:
         self.screen.blit(self.stage_surface, (x, y))
           
         keys = pygame.key.get_pressed()
+        self.fill_random_cards()
         if keys[pygame.K_SPACE] and len(self.running_cards) == 3:
             if self.first_spacebarpress:
                 if len(self.carddeck.shuffled_deck) < 5:
                     self.carddeck.reset_deck()
-                self.fill_random_cards()
                 self.first_spacebarpress = False
             else:
                 used_random_cards = []
@@ -524,8 +524,8 @@ class GameWorld:
                             image_path = self.carddeck.get_card_img(new_card_id)
                             base_card = pygame.image.load(image_path).convert_alpha()
                             card_with_text = base_card.copy()
-                            font = pygame.font.Font(self.fontpath, 20)
-                            self.draw_text_on_card(card_with_text, card_name, font, (0, 0, 0))
+                            font = pygame.font.Font(self.fontpath, 12)
+                            self.draw_text_on_card(card_with_text, card_name, font, (255, 255, 255))
                             self.card_images[new_card_id] = card_with_text
                             self.random_cards.append(new_card_id)
                             existing_card_names.add(card_name)
