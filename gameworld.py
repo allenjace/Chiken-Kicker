@@ -93,7 +93,6 @@ class GameWorld:
                         self.running = False
                     if event.key == pygame.K_ESCAPE:  # Toggle pause menu
                         self.pause_menu.toggle_menu()
-                    for event in events:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
@@ -227,12 +226,12 @@ class GameWorld:
         
         # First, find all common movement cards in the deck
         for card_id, card_data in self.carddeck.deck.items():
-            if card_data[2] == "common" and "Move" in card_data[0]:
+            if card_data[3] == "common" and "Move" in card_data[1]:
                 common_movement_cards.append(card_id)
         
         # Also add the Kick card
         for card_id, card_data in self.carddeck.deck.items():
-            if card_data[0] == "Kick":
+            if card_data[1] == "Kick":
                 common_movement_cards.append(card_id)
                 break
         
@@ -406,7 +405,7 @@ class GameWorld:
         self.common_cards = []
         self.random_cards = []
         self.addcommon_cards()
-        self.first_spacebar = True
+        self.first_spacebarpress = True
         self.load_next_card()
         self.game.sound.music.play(1)
         self.start_ticks = pygame.time.get_ticks()
@@ -561,106 +560,6 @@ class GameWorld:
         
         # Update game state
         self.main_game.game_loop()
-        
-class Deck:
-    def __init__(self, GameWorld):
-        self.gameworld = GameWorld
-        self.deck = self.create_deck()
-        self.infinitedeck = self.deck.copy()
-        self.shuffled_deck = []  # Shuffle the deck
-        self.non_common_cards = []  # Will store non-common cards
-        self.common_cards = []  # Store common card IDs
-        
-        # First, identify all common cards
-        for card_id, card_data in self.deck.items():
-            if card_data[2] == "common":
-                self.common_cards.append(card_id)
-            else:
-                self.non_common_cards.append(card_id)
-                
-        self.og_shuffledeck = self.non_common_cards.copy()
-        self.reset_deck()
-        print("Deck created")
-
-    def create_deck(self) -> dict:
-        deck = dict()
-        non_common_cards = []
-        
-        cwd = os.getcwd()
-        self.image_path = {
-            "common": os.path.join(cwd, 'common_card.png'),
-            "rare": os.path.join(cwd, 'rare_card.png'),
-            "epic": os.path.join(cwd, 'epic_card.png'),
-            "legendary": os.path.join(cwd, 'legendary_card.png')
-        }
-
-        # Create base card templates
-        common_cards = [
-            ["Move Left", "Moves Left", "common"],
-            ["Move Right", "Moves Right", "common"],
-            ["Move Up", "Moves Up", "common"],
-            ["Move Down", "Moves Down", "common"],
-            ["Duck", "Duck Down", "common"],
-            ["Kick", "Kick aimed towards the family jewels", "common"]
-        ]
-        
-        non_common_templates = [
-            # Rare cards
-            ["Back Kick", "Happy de ume tsukushite", "rare"],
-            ["Flying Kick", "Soaring through the air feet first", "rare"],
-            ["Roundhouse Kick", "Kick with extra knockback", "rare"],
-            ["Axe Kick", "Kick with a chance to stun", "rare"],
-            ["Knee Strike", "Quick knee to the chin", "rare"],
-            
-            # Epic cards
-            ["Spinning Back Kick", "A powerful spinning kick", "epic"],
-            ["Flying Knee", "A flying knee strike", "epic"],
-            ["Tornado Kick", "Let it rip!", "epic"],
-            ["Sky Drop", "Drop from the sky", "epic"],
-            
-            # Legendary card
-            ["Roids", "Jump Higher, Run Faster, Kick Harder", "legendary"]
-        ]
-
-        # Add common cards first (unshuffled)
-        for card in common_cards:
-            deck[len(deck) + 1] = card.copy()
-
-        # Create multiple copies of non-common cards and shuffle them
-        num_copies = 10
-        all_non_common = []
-        for _ in range(num_copies):
-            for card in non_common_templates:
-                all_non_common.append(card.copy())
-        
-        # Shuffle the non-common cards
-        random.shuffle(all_non_common)
-        
-        # Add shuffled non-common cards to deck
-        for card in all_non_common:
-            deck[len(deck) + 1] = card
-            
-        return deck
-    
-    def get_card_name(self, id: int) -> str:
-        return self.deck[id][0]
-
-    def get_card_description(self, id: int) -> str:
-        return self.deck[id][1]
-    
-    def get_card_img(self, id: int) -> str:
-        card_type = self.deck[id][2]
-        return self.image_path[card_type]
-    
-    def reset_deck(self):
-        self.shuffled_deck = self.non_common_cards.copy()
-        random.shuffle(self.shuffled_deck)
-        print("Deck reset and reshuffled")
-    
-    def get_next_card(self) -> int:
-        if len(self.shuffled_deck) == 0:
-            self.reset_deck()
-        return self.shuffled_deck.pop(0)
 
 class PauseMenu: # class for the pause menu
     def __init__(self, GameWorld):
