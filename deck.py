@@ -8,8 +8,21 @@ class Deck():
     def __init__(self, GameWorld):
         self.gameworld = GameWorld
         self.deck = self.create_deck()
-        self.shuffled_deck = list(self.deck.keys())  # Shuffle the deck
-        random.shuffle(self.shuffled_deck)
+        self.infinitedeck = self.deck.copy()
+        self.shuffled_deck = []
+        self.non_common_cards = []
+        self.common_cards = []
+        
+        # identify all common cards
+        for card_id, card_data in self.deck.items():
+            if card_data[3] == "common":  # Index 3 is rarity in the original format
+                self.common_cards.append(card_id)
+            else:
+                self.non_common_cards.append(card_id)
+                
+        self.og_shuffledeck = self.non_common_cards.copy()
+        self.reset_deck()
+        print("Deck created")
         
     def create_deck(self) -> list:
         # dictionary to describe cards
@@ -44,7 +57,14 @@ class Deck():
         deck[len(deck)+1] = [17, "Roids", "Jump Higher, Run Faster Kick Harder","Legendary",'card images/legendary_card.png'] # add a multiplier to outgoing dmg
         deck[len(deck)+1] = [18, "Lucky Strike", "Deal double damage on your next hit","Legendary",'card images/legendary_card.png'] # add a multiplier to outgoing dmg
         
-
+        # Make copies of non-common cards
+        original_length = len(deck)
+        base_cards = {k: v for k, v in deck.items() if k > 6}  # Get all non-common cards
+        num_copies = 9  # We already have 1 copy, so make 9 more for total of 10
+        
+        for _ in range(num_copies):
+            for card_id, card_data in base_cards.items():
+                deck[len(deck)+1] = card_data.copy()  # Add copy with new ID
         return deck
     
     def combo_list(self):
@@ -74,6 +94,16 @@ class Deck():
     
     def get_card_file_path(self, id:int) -> str:
         return self.deck[id][4]
+
+    def get_next_card(self) -> int:
+        if len(self.shuffled_deck) == 0:
+            self.reset_deck()
+        return self.shuffled_deck.pop(0)
+    
+    def reset_deck(self):
+        self.shuffled_deck = self.non_common_cards.copy()
+        random.shuffle(self.shuffled_deck)
+        print("Deck reset and reshuffled")
 
     # takes in n number of cards to draw and time left in game, will return n sized list
     def fill_hand(self, n:int, time:int) -> list:
