@@ -1,8 +1,12 @@
 import pygame
 from deck import *
 
+SCREEN_WIDTH = SCREENHEIGHT = 0
+GRAVITY =2
+SPEED = 10
+
 class Fighter():
-    def __init__(self, x, y, flip, data, sprite_sheet, animation_steps):
+    def __init__(self, x, y, flip, data, sprite_sheet, animation_steps, width, height):
         self.size = data[0]
         self.image_scale = data[1]
         self.offset = data[2]
@@ -17,8 +21,11 @@ class Fighter():
         self.running = False
         self.jump = False
         self.attacking = False
+        self.attack_cool = 0
         self.attack_type = 0
         self.health = 100
+        SCREEN_WIDTH = width
+        SCREENHEIGHT = height
         # self.playerhand = deck.fill_hand(5,300)
         # self.playerqueue = queue.Queue()
 
@@ -34,8 +41,6 @@ class Fighter():
         return animation_list
 
     def move(self, screen_width, screen_height, surface, target):
-        SPEED = 10
-        GRAVITY = 2
         dx = 0
         dy = 0
         self.running = False
@@ -67,7 +72,6 @@ class Fighter():
                     self.attack_type = 2
             if key[pygame.K_j]:
                 pass
-
         # apply gravity
         self.vel_y += GRAVITY
         dy += self.vel_y
@@ -88,6 +92,9 @@ class Fighter():
             self.flip = False
         else: 
             self.flip = True
+
+        if self.attack_cool > 0:
+            self.attack_cool -= 1
 
         # update player position
         self.rect.x += dx
@@ -120,6 +127,12 @@ class Fighter():
             # check if an attack was executed
             if self.action == 3 or self.action == 4:
                 self.attacking = False
+                self.attack_cool = 20
+            if self.action == 5:
+                self.hit = False
+                self.attacking = False
+                self.attack_cool = 20
+                
     
     # hitbox 
     def attack(self, surface, target):
@@ -140,10 +153,35 @@ class Fighter():
 
     def draw(self, surface):
         img = pygame.transform.flip(self.image, self.flip, False)
-        pygame.draw.rect(surface, (255, 0 , 0), self.rect) # this is the hitbox
+        # pygame.draw.rect(surface, (255, 0 , 0), self.rect) # this is the hitbox
         surface.blit(img, (self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
 
-    def play_combo_card(self, id):
+    def play_combo_card(self, id,deck:Deck, target):
         pass
-    def play_normal_card(self, id):
-        pass
+    def play_normal_card(self, id,deck:Deck, target):
+        self.health -= deck.get_card_self_dmg(id)
+        dx,dy,scale = deck.get_card_mvmt(id)
+        if target.rect.centerx > self.rect.centerx:
+            self.flip = False
+        else: 
+            self.flip = True
+        # update player position
+        self.rect.x += dx
+        self.rect.y += dy
+
+        # grab hitbox dim
+        x_scale,y_scale = deck.get_card_range(id)
+        # create a hitbox for the move
+        if self.flip:
+            hitbox = self.rect.move(-1*self.rect.width,0)
+        else:
+            hitbox = self.rect.move(self.rect.width,0)
+        hitbox.scale_by(x_scale,y_scale)
+
+        self.attacking = True
+        self.attack_type=2
+        self.update()
+        if hitbox.colliderect(target.rect):
+            target.health -= deck.get_card_dmg(id)
+            print(deck.get_card_dmg(id))
+        self.attacking = False
