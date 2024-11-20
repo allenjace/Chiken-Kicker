@@ -1,185 +1,103 @@
 import pygame 
-import time
+import os
 from fighter import Fighter
-from deck import *
 
 pygame.init()
-
+class Main():
+    def __init__(self, screen_width, screen_height):
 # create game window
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 600
+        self.SCREEN_WIDTH = screen_width
+        self.SCREEN_HEIGHT = screen_height
 
-# create screen display
-screen = pygame.display.set_mode(size=(1000, 600))
-pygame.display.set_caption("Brawler")
+        # create screen display
+        self.screen = None
+        pygame.display.set_caption("Brawler")
 
-# set frame rate
-clock = pygame.time.Clock()
-FPS = 60
+        # set frame rate
+        self.clock = pygame.time.Clock()
+        self.FPS = 60
 
-# define colors
-RED = (255, 0, 0)
-YELLOW = (255, 255, 0)
-WHITE = (255, 255, 255)
+        # define colors
+        self.RED = (255, 0, 0)
+        self.YELLOW = (255, 255, 0)
+        self.WHITE = (255, 255, 255)
 
-# define fighter variables
-WARRIOR_SIZE = 162
-WARRIOR_SCALE = 4
-WARRIOR_OFFSET = [72, 56]
-WARRIOR_DATA = [WARRIOR_SIZE, WARRIOR_SCALE, WARRIOR_OFFSET]
-WIZARD_SIZE = 250
-WIZARD_SCALE = 3
-WIZARD_OFFSET = [112, 107]
-WIZARD_DATA = [WIZARD_SIZE, WIZARD_SCALE, WIZARD_OFFSET]
+        # define fighter variables
+        self.WARRIOR_SIZE = 162
+        self.WARRIOR_SCALE = 4
+        self.WARRIOR_OFFSET = [72, 56]
+        self.WARRIOR_DATA = [self.WARRIOR_SIZE, self.WARRIOR_SCALE, self.WARRIOR_OFFSET]
+        self.WIZARD_SIZE = 250
+        self.WIZARD_SCALE = 3
+        self.WIZARD_OFFSET = [112, 107]
+        self.WIZARD_DATA = [self.WIZARD_SIZE, self.WIZARD_SCALE, self.WIZARD_OFFSET]
 
-# load background image
-# bg_image = pygame.image.load("background_3.jpg").convert_alpha()
+        # load background image
+        cwd = os.getcwd()
+        bg_imagepath = (os.path.join(cwd, "background_3.jpg"))
+        self.bg_image = pygame.image.load(bg_imagepath).convert_alpha()
 
-# load sprite sheets
-warrior_sheet = pygame.image.load("warrior.png").convert_alpha()
-wizard_sheet = pygame.image.load("wizard.png").convert_alpha()
+        # load sprite sheets
+        cwd = os.getcwd()
+        warrior_imagepath = (os.path.join(cwd, "warrior.png"))
+        self.warrior_sheet = pygame.image.load(warrior_imagepath).convert_alpha()
+        wizard_imagepath = (os.path.join(cwd, "wizard.png"))
+        self.wizard_sheet = pygame.image.load(wizard_imagepath).convert_alpha()
 
-# define number of steps in each animation
-WARRIOR_ANIMATION_STEPS = [10, 8, 1, 7, 7, 3, 7]
-WIZARD_ANIMATION_STEPS = [8, 8, 1, 8, 8, 3, 7]
-
-
-# function for drawing background
-# def draw_bg():
-#     scaled_bg = pygame.transform.scale(bg_image, (SCREEN_WIDTH, SCREEN_HEIGHT))
-#     screen.blit(scaled_bg, (0, 0))
-
-# function for drawing fighter health bars
-def draw_health_bar(health, x, y):
-    ratio = health / 100
-    # pygame.draw.rect(screen, WHITE, (x - 2, y - 2, 404, 34))
-    # pygame.draw.rect(screen, RED, (x, y, 400, 30))    # pygame.draw.rect(screen, YELLOW, (x, y, 400 * ratio, 30))
-deck = Deck()
-
-# create two objects of fighter
-temp = [deck.deck[i] for i in range(1,7)]
-print(temp)
-fighter_1 = Fighter(300, 200, False, WARRIOR_DATA, warrior_sheet, WARRIOR_ANIMATION_STEPS, temp+deck.fill_hand(3,180))
-fighter_2 = Fighter(600, 200, True, WIZARD_DATA, wizard_sheet, WIZARD_ANIMATION_STEPS, temp+deck.fill_hand(3,300))
-
-# draw_bg()
-screen.fill('black')
-pygame.display.flip()
-
-# draw fighters
-fighter_1.draw(screen)
-fighter_2.draw(screen)
-
-# game loop
-run = True
-while run:
-    print("----------------Turn start----------------")
-    clock.tick(FPS)
-    # draw background
-
-    pygame.display.update()
-
-    # show player stats
-    draw_health_bar(fighter_1.health, 20, 20)
-    draw_health_bar(fighter_2.health, 580, 20)
-
-    print("-------player pos-------")
-    print("p1 ", fighter_1.rect.x, fighter_1.rect.y)
-    # print("p2 ", fighter_2.rect.x, fighter_2.rect.y)
-
-    print ("-------draw card-------")
-    print(fighter_1.playerhand)
-    # print(fighter_2.playerhand)
-
-    print ("-------p1 turn-------")
-    for i in range(0,3):
-        choice = int(input("pick card: "))
-        if choice > len(fighter_1.playerhand)-1 or choice < 0 or len(fighter_1.playerhand) == 0:
-            break
-        fighter_1.add_card(fighter_1.playerhand[choice])
-        print("remaining cards ")
-        print(fighter_1.playerhand)
+        # define number of steps in each animation
+        self.WARRIOR_ANIMATION_STEPS = [10, 8, 1, 7, 7, 3, 7]
+        self.WIZARD_ANIMATION_STEPS = [8, 8, 1, 8, 8, 3, 7]
         
-    print ("-------p2 turn-------")
-    for i in range(0,3):
-        choice = int(input("pick card: "))
-        if choice > len(fighter_2.playerhand)-1 or choice < 0 or len(fighter_2.playerhand) == 0:
-            break
-        fighter_2.add_card(fighter_2.playerhand[choice])
-        print("remaining cards ")
-        print(fighter_2.playerhand)
+      # function for drawing background
+    def draw_bg(self):
+        scaled_bg = pygame.transform.scale(self.bg_image, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        self.screen.blit(scaled_bg, (0, 0))
 
-    print("-------Check 4 combo-------")
-    f1_queue = deck.check_combo(fighter_1.playerqueue)
-    f2_queue = deck.check_combo(fighter_2.playerqueue)
-    print('f1 queue: ',f1_queue)
-    print('f2 queue', f2_queue)
-    print("-------playing cards-------")
-    while (not f1_queue) or (not f2_queue):
-        print("end turn")
-        # reset hitbox
-        f1_hitbox = f2_hitbox = pygame.Rect((0,0,0,0));
-        if not f1_queue:
-            f1_action = f1_queue[0]
-            print('p1 action: ',f1_action)
-            f1_hitbox = fighter_1.create_hitbox(f1_action)
-            fighter_1.card_move(f1_action[4], fighter_2)
-            del f1_queue[0]
-
-        if not f2_queue:
-            f2_action = f2_queue[0]
-            print('p2 action: ', f2_action)
-            f2_hitbox = fighter_2.create_hitbox(f2_action)
-            fighter_2.card_move(f2_action[4], fighter_1)
-            del f2_queue[0]
-
-        # draw_bg()
-        screen.fill('black')
-        pygame.display.flip()
+    # function for drawing fighter health bars
+    def draw_health_bar(self, health, x, y):
+        self.ratio = health / 100
+        pygame.draw.rect(self.screen, self.WHITE, (x - 2, y - 2, 404, 34))
+        pygame.draw.rect(self.screen, self.RED, (x, y, 400, 30))
+        pygame.draw.rect(self.screen, self.YELLOW, (x, y, 400 * self.ratio, 30))
         
+    def set_screen(self, screen, width, height):
+            self.screen = screen
+            self.SCREEN_WIDTH = width
+            self.SCREEN_HEIGHT = height
+            
+            # Now that we have the screen dimensions, initialize fighters
+            self.fighter_1 = Fighter(width // 4, height - 100, False, self.WARRIOR_DATA, self.warrior_sheet, self.WARRIOR_ANIMATION_STEPS)
+            self.fighter_2 = Fighter(3 * width // 4, height - 300, True, self.WIZARD_DATA, self.wizard_sheet, self.WIZARD_ANIMATION_STEPS)
+    # game loop
+    def game_loop(self):
+
+        if self.screen is None:
+            return
+        self.clock.tick(self.FPS)
+        #draw background
+        self.draw_bg()
+
+        # show player stats
+        self.draw_health_bar(self.fighter_1.health, 20, 20)
+        self.draw_health_bar(self.fighter_2.health, self.SCREEN_WIDTH - 420, 20)
+
+
+        # move fighters
+        self.fighter_1.move(self.SCREEN_WIDTH,self.SCREEN_HEIGHT-100, self.screen, self.fighter_2)
+
+        # update fighters
+        self.fighter_1.update()
+        self.fighter_2.update()
+
         # draw fighters
-        fighter_1.draw(screen)
-        fighter_2.draw(screen)
+        self.fighter_1.draw(self.screen)
+        self.fighter_2.draw(self.screen)
 
-        pygame.draw.rect(screen, (255,0,0), f1_hitbox)
-        pygame.draw.rect(screen, (255,0,0), f2_hitbox)
 
+        # event handler
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+
+        # update display
         pygame.display.update()
-
-        print("-------Detect Collision-------")
-        if f1_hitbox.colliderect(fighter_2.rect):
-            print("f2 hit")
-            fighter_2.health -= f1_action[8]
-            fighter_2.card_move(f1_action[5], fighter_1)
-        if f2_hitbox.colliderect(fighter_1.rect):
-            print("f1 hit")
-            fighter_1.health -= f2_action[8]
-            fighter_1.card_move(f2_action[5], fighter_2)
-        input()
-
-    print("-------filling hand-------")
-    fighter_1.playerhand.append(deck.fill_hand(3-len(fighter_1.playerhand),50))
-    fighter_2.playerhand.append(deck.fill_hand(3-len(fighter_2.playerhand),50))
-    
-
-    # move fighters
-    # fighter_1.move(SCREEN_WIDTH, SCREEN_HEIGHT, screen, fighter_2)
-
-    # update fighters
-    # fighter_1.update()
-    # fighter_2.update()
-    
-
-    # event handler
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-
-    # update display
-    pygame.display.update()
-
-    next = input('next turn: ')
-    if next=='q':
-        break
-#exist pygame
-pygame.quit()
