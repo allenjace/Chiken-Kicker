@@ -94,7 +94,18 @@ class Deck():
     
     def get_card_file_path(self, id:int) -> str:
         return self.deck[id][4]
+    
+    def get_card_mvmt(self, id:int):
+        return self.deck[id][5]
+    
+    def get_card_range(self, id:int):
+        return self.deck[id][7]
+    
+    def get_card_self_dmg(self, id:int):
+        return self.deck[id][8]
 
+    def get_card_dmg(self,id:int):
+        return self.deck[id][9]
     def get_next_card(self) -> int:
         if len(self.shuffled_deck) == 0:
             self.reset_deck()
