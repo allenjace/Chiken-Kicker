@@ -25,6 +25,7 @@ class Fighter():
         self.attack_type = 0
         self.health = 100
         self.dmg_mult = 1.0
+        self.temp_mult = 1.0
         SCREEN_WIDTH = width
         SCREENHEIGHT = height
         # self.playerhand = deck.fill_hand(5,300)
@@ -140,7 +141,7 @@ class Fighter():
         self.attacking = True
         attacking_rect = pygame.Rect(self.rect.centerx - (2 * self.rect.width * self.flip), self.rect.y, 2 * self.rect.width, self.rect.height)
         if attacking_rect.colliderect(target.rect):
-            target.health -= 10 * self.dmg_mult # fighter loses 10 health
+            target.health -= 10 * self.dmg_mult * self.temp_mult # fighter loses 10 health
         
         pygame.draw.rect(surface, (0, 255, 0), attacking_rect)
 
@@ -192,35 +193,40 @@ class Fighter():
         self.attacking = False
         
     def play_normal_card(self, id,deck:Deck, target):
-        self.health -= deck.get_card_self_dmg(id)
-        dx,dy,scale = deck.get_card_mvmt(id)
-        if target.rect.centerx > self.rect.centerx:
-            self.flip = False
-        else: 
-            self.flip = True
-        # update player position
-        self.rect.x += dx
-        self.rect.y += dy
-
-        # grab hitbox dim
-        x_scale,y_scale = deck.get_card_range(id)
-        # create a hitbox for the move
-        if self.flip:
-            hitbox = pygame.Rect(self.rect.left - self.rect.width * x_scale, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height / 2 )
+        if id == 17:
+            self.dmg_mult += 0.3
+        elif id == 18:
+            self.temp_mult = 2
         else:
-            hitbox = pygame.Rect(self.rect.right, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height / 2 )
-        hitbox.scale_by(x_scale,y_scale)
+            self.health -= deck.get_card_self_dmg(id)
+            dx,dy,scale = deck.get_card_mvmt(id)
+            if target.rect.centerx > self.rect.centerx:
+                self.flip = False
+            else: 
+                self.flip = True
+            # update player position
+            self.rect.x += dx
+            self.rect.y += dy
 
-        self.attacking = True
-        self.attack_type=2
-        self.update()
-        if hitbox.colliderect(target.rect):
-            target.health -= deck.get_card_dmg(id) * self.dmg_mult
-            x_knockback, y_knockback, scale = deck.get_card_knockback(id)
-            if target.flip:
-                target.rect.x += x_knockback
-                y_knockback -= y_knockback
+            # grab hitbox dim
+            x_scale,y_scale = deck.get_card_range(id)
+            # create a hitbox for the move
+            if self.flip:
+                hitbox = pygame.Rect(self.rect.left - self.rect.width * x_scale, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height / 2 )
             else:
-                target.rect.x -= x_knockback
-                y_knockback -= y_knockback
-        self.attacking = False
+                hitbox = pygame.Rect(self.rect.right, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height / 2 )
+            hitbox.scale_by(x_scale,y_scale)
+
+            self.attacking = True
+            self.attack_type=2
+            self.update()
+            if hitbox.colliderect(target.rect):
+                target.health -= deck.get_card_dmg(id) * self.dmg_mult
+                x_knockback, y_knockback, scale = deck.get_card_knockback(id)
+                if target.flip:
+                    target.rect.x += x_knockback
+                    y_knockback -= y_knockback
+                else:
+                    target.rect.x -= x_knockback
+                    y_knockback -= y_knockback
+            self.attacking = False
