@@ -27,12 +27,12 @@ class Game():
         self.curr_menu = self.main_menu
 
         # loads and plays music
-        cwd = os.getcwd()
-        self.musicpath = (os.path.join(cwd,'Kevin MacLeod - Pixelland  NO COPYRIGHT 8-bit Music.mp3'))
-        pygame.mixer.init()
-        self.sound = pygame.mixer
-        self.sound.music.load(self.musicpath)
-        self.sound.music.play(-1)
+        # cwd = os.getcwd()
+        # self.musicpath = (os.path.join(cwd,'Kevin MacLeod - Pixelland  NO COPYRIGHT 8-bit Music.mp3'))
+        # pygame.mixer.init()
+        # self.sound = pygame.mixer
+        # self.sound.music.load(self.musicpath)
+        # self.sound.music.play(-1)
 
     # game loop
     def game_loop(self):
