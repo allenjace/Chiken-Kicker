@@ -21,7 +21,7 @@ class GameWorld:
 
         self.screeninfo = pygame.display.Info()
         self.DISPLAY_W, self.DISPLAY_H = self.screeninfo.current_w, self.screeninfo.current_h
-        self.screen = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H), pygame.FULLSCREEN | pygame.SCALED)
+        self.screen = pygame.display.set_mode((self.DISPLAY_W, self.DISPLAY_H))
         #self.screen.fill((0, 205, 255))
         # Set up font and its path
         cwd = os.getcwd()
