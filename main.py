@@ -66,8 +66,8 @@ class Main():
             self.SCREEN_HEIGHT = height
             
             # Now that we have the screen dimensions, initialize fighters
-            self.fighter_1 = Fighter(width // 4, height - 100, False, self.WARRIOR_DATA, self.warrior_sheet, self.WARRIOR_ANIMATION_STEPS)
-            self.fighter_2 = CPU(3 * width // 4, height - 300, True, self.WIZARD_DATA, self.wizard_sheet, self.WIZARD_ANIMATION_STEPS)
+            self.fighter_1 = Fighter(x=width // 4, y=height - 100, flip=False, data=self.WARRIOR_DATA, sprite_sheet=self.warrior_sheet, animation_steps=self.WARRIOR_ANIMATION_STEPS,width= width, height=height)
+            self.fighter_2 = CPU(3 * width // 4, height - 300, True, self.WIZARD_DATA, self.wizard_sheet, self.WIZARD_ANIMATION_STEPS, width, height)
     # game loop
     def game_loop(self):
 
