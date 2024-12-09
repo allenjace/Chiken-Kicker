@@ -29,27 +29,28 @@ class Deck():
         # format: [id, name, description, card rarity, player movement = (dx,dy, ratio to shrink/expand char), enemy movement = (dx,dy, ratio), range, self dmg, enemy dmg]
         # common cards - total 6
         deck = dict()
-        deck[len(deck)+1] = [1, "Move Forward", "Move Forward","common",'card images/backwards.png', [30,0,1], [0,0,1], [0,0], 0, 0] # 01
-        deck[len(deck)+1] = [2, "Move Backward", "Move Backward","common",'card images/forwards.png', [-30,0,1], [0,0,1], [0,0], 0, 0] # 02
-        deck[len(deck)+1] = [3, "Move Up", "Aim upwards","common",'card images/up.png',[0,-30,1], [0,0,1], [0,0], 0, 0] #03
-        deck[len(deck)+1] = [4, "Move Down", "Moves down","common",'card images/down.png',[0,30,1], [0,0,1], [0,0], 0, 0] # 04
+        deck = dict()
+        deck[len(deck)+1] = [1, "Move Forward", "Move Forward","common",'card images/forwards.png', [300,0,1], [0,0,1], [0,0], 0, 0] # 01
+        deck[len(deck)+1] = [2, "Move Backward", "Move Backward","common",'card images/backwards.png', [-300,0,1], [0,0,1], [0,0], 0, 0] # 02
+        deck[len(deck)+1] = [3, "Move Up", "Aim upwards","common",'card images/up.png',[0,-200,1], [0,0,1], [0,0], 0, 0] #03
+        deck[len(deck)+1] = [4, "Move Down", "Moves down","common",'card images/down.png',[0,200,1], [0,0,1], [0,0], 0, 0] # 04
         deck[len(deck)+1] = [5, "Duck", "Duck down","common",'card images/common_card.png',[0,0,0.5], [0,0,1], [0,0], 0, 0] # 05
-        deck[len(deck)+1] = [6, "Kick", "A kick aimed towards the family jewels","common",'card images/common_card.png',[0,0,1],[10,0,1], [0.5,0.5], 0, 5] # 06
+        deck[len(deck)+1] = [6, "Kick", "A kick aimed towards the family jewels","common",'card images/common_card.png',[0,0,1],[75,0,1], [0.5,0.5], 0, 10 ]# 06
         
         # rare cards - total 5
-        deck[len(deck)+1] = [7, "Back Kick", "Happy de ume tsukushite","rare",'card images/rare_card.png',[0,0,1], [0,0,1], [0.5,0.5],0,10] # 07, backwards + kick 
-        deck[len(deck)+1] = [8, "Roundhouse Kick", "A kick with extra knockback","rare",'card images/rare_card.png',[0,0,1], [0,0,1], [0.5,1],0,10] # 08, up + forwards + kick
-        deck[len(deck)+1] = [9, "Axe Kick", "A kick with a chance to stun","rare",'card images/rare_card.png',[0,0,1], [0,0,1], [0.5,1],0,10] # 09, up + down + kick
-        deck[len(deck)+1] = [10, "Knee Strike", "A quick knee to the chin","rare",'card images/rare_card.png',[0,0,1], [0,0,1], [0.5,1],0,10] # 10, up + kick
+        deck[len(deck)+1] = [7, "Back Kick", "Happy de ume tsukushite","rare",'card images/rare_card.png',[0,0,1], [75,0,1], [0.5,0],0,15] # 07, backwards + kick 
+        deck[len(deck)+1] = [8, "Roundhouse Kick", "A kick with extra knockback","rare",'card images/rare_card.png',[0,0,1], [150,0,1], [0.5,1],0,10] # 08, up + forwards + kick
+        deck[len(deck)+1] = [9, "Axe Kick", "A kick with a chance to stun","rare",'card images/rare_card.png',[0,0,1], [0,0,1], [0.5,1],0,20] # 09, up + down + kick
+        deck[len(deck)+1] = [10, "Knee Strike", "A quick knee","rare",'card images/rare_card.png',[0,0,1], [0,0,1], [0.5,1],0,15] # 10, up + kick
         deck[len(deck)+1] = [11, "Spin","You some kind of ballerina?","rare",'card images/rare_card.png',[0,0,1], [0,0,1], [0,0],0,0] # 11, backwards + forwards + back
-        deck[len(deck)+1] = [12, "Leap","","rare",'card images/rare_card.png',[0,-30,1], [0,0,1], [0,0],0,0] # 12, up + up
+        deck[len(deck)+1] = [12, "Leap","","rare",'card images/rare_card.png',[300,-100,1], [0,0,1], [0,0],0,0] # 12, up + up
 
 
         # epic cards - total 3
-        deck[len(deck)+1] = [13, "Spinning Back Kick", "A powerful spinning kick","epic",'card images/epic_card.png',[0,0,1], [0,0,1], [0.5,0],0,20] #13, spin + back kick
-        deck[len(deck)+1] = [14, "Flying Knee", "","epic",'card images/epic_card.png',[20,15,1], [0,0,1], [0.5,0.5],0,20] #14, jump + forward + knee
-        deck[len(deck)+1] = [15, "Tornado Kick", "Let it rip!","epic",'card images/epic_card.png',[0,0,1], [0,0,1], [0.5,1],0,20] # spin + roundhouse kick
-        deck[len(deck)+1] = [16, "Flying Kick", "Soaring through the air feet first","epic",'card images/epic_card.png',[-20,-15,1], [0,0,1], [0.5,0.5],0,10] # jump + forward + kick
+        deck[len(deck)+1] = [13, "Spinning Back Kick", "A powerful spinning kick","epic",'card images/epic_card.png',[0,0,1], [0,0,1], [0.5,0],0,25] #13, spin + back kick
+        deck[len(deck)+1] = [14, "Flying Knee", "","epic",'card images/epic_card.png',[300,-100,1], [200,0,1], [1,0],0,30] #14, jump + forward + knee
+        deck[len(deck)+1] = [15, "Tornado Kick", "Let it rip!","epic",'card images/epic_card.png',[0,0,1], [500,0,1], [1,1],0,40] # spin + roundhouse kick
+        deck[len(deck)+1] = [16, "Flying Kick", "Soaring through the air feet first","epic",'card images/epic_card.png',[300,-100,1], [200,0,1], [1,1],0,25] # jump + forward + kick
         # rdm drug
 
 
@@ -69,17 +70,16 @@ class Deck():
     
     def combo_list(self):
         combos = dict()
-        combos["20600"] = [7,"Back Kick", "Happy de ume tsukushite",1,[0,0,1], [0,0,1], [0.5,0.5],0,15]
-        combos["30106"] = [8,"Roundhouse Kick", "A kick with extra knockback",1,[0,0,1], [0,0,1], [0.5,1],0,15]
-        combos["30406"] = [9,"Axe Kick", "A kick with a chance to stun",1,[0,0,1], [0,0,1], [0.5,1],0,15]
-        combos["30600"] = [10,"Knee Strike", "A quick knee to the chin",1,[0,0,1], [0,0,1], [0.5,1],0,15]
-        combos["20102"] = [11,"Spin","You some kind of ballerina?",1,[0,0,1], [0,0,1], [0,0],0,0] # change to taunt?
-        combos["30300"] = [12,"Jump","",1,[0,-30,1], [0,0,1], [0,0],0,0] # taunt?
-        combos["110700"] = [13,"Spinning Back Kick", "A powerful spinning kick",2,[0,0,1], [0,0,1], [0.5,0],0,25]
-        combos["120110"] = [14,"Flying Knee", "",2,[20,15,1], [0,0,1], [0.5,0.5],0,25]
-        combos["110800"] = [15,"Tornado Kick", "Let it rip!",2,[0,0,1], [0,0,1], [0.5,1],0,25]
-        combos["120106"] = [16,"Flying Kick", "Soaring through the air feet first",[-20,-15,1], [0,0,1], [0.5,0.5],0,25]
-        
+        combos["20600"] = ["Back Kick", "Happy de ume tsukushite",1,[0,0,1], [75,0,1], [0.5,0],0,20]
+        combos["30106"] = ["Roundhouse Kick", "A kick with extra knockback",1,[0,0,1], [300,0,1], [0.5,1],0,10]
+        combos["30406"] = ["Axe Kick", "A kick with a chance to stun",1,[0,0,1], [150,0,1], [0.5,1],0,10]
+        combos["30600"] = ["Knee Strike", "A quick knee to the chin",1,[0,0,1], [0,0,1], [0.5,1],0,15]
+        combos["20102"] = ["Spin","You some kind of ballerina?",1,[0,0,1], [0,0,1], [0,0],0,0] # change to taunt?
+        combos["30300"] = ["Jump","",1,[0,-30,1], [0,0,1], [0,0],0,0] # taunt?
+        combos["110700"] = ["Spinning Back Kick", "A powerful spinning kick",2,[0,0,1], [0,0,1], [0.5,0],0,35]
+        combos["120110"] = ["Flying Knee", "",2,[300,-100,1], [200,0,1], [1,0],0,30] 
+        combos["110800"] = ["Tornado Kick", "Let it rip!",2,[0,0,1], [500,0,1], [2,1],0,40]
+        combos["120106"] = ["Flying Kick", "Soaring through the air feet first",[300,-100,1], [200,0,1], [2,1],0,25]
 
         return combos
 
