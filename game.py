@@ -17,7 +17,7 @@ class Game():
         self.screeninfo = pygame.display.Info()
         self.DISPLAY_W, self.DISPLAY_H = self.screeninfo.current_w, self.screeninfo.current_h
         #self.DISPLAY_W, self.DISPLAY_H = 1280,800 
-        self.window = pygame.display.set_mode((self.DISPLAY_W,self.DISPLAY_H),pygame.FULLSCREEN | pygame.SCALED)
+        self.window = pygame.display.set_mode((self.DISPLAY_W,self.DISPLAY_H))
         self.display = pygame.Surface ((self.DISPLAY_W, self.DISPLAY_H))
         #self.window = pygame.display.set_mode ((self.DISPLAY_W, self.DISPLAY_H), pygame.RESIZABLE)
         self.main_menu = MainMenu(self)
