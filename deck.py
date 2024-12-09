@@ -98,6 +98,9 @@ class Deck():
     def get_card_mvmt(self, id:int):
         return self.deck[id][5]
     
+    def get_card_knockback(self, id:int):
+        return self.deck[id][6]
+    
     def get_card_range(self, id:int):
         return self.deck[id][7]
     
@@ -106,6 +109,22 @@ class Deck():
 
     def get_card_dmg(self,id:int):
         return self.deck[id][9]
+    
+    def get_combo_mvmt(self, id:int):
+        return self.deck[id][3]
+    
+    def get_combo_knockback(self, id:int):
+        return self.deck[id][4]
+    
+    def get_combo_range(self, id:int):
+        return self.deck[id][5]
+    
+    def get_combo_self_dmg(self, id:int):
+        return self.combos[id][6]
+
+    def get_combo_dmg(self,id:int):
+        return self.combos[id][7]
+        
     def get_next_card(self) -> int:
         if len(self.shuffled_deck) == 0:
             self.reset_deck()
