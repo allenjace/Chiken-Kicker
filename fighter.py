@@ -1,107 +1,230 @@
-import pygame 
-import os
-from cpu import *
-from fighter import Fighter
+import pygame
+from deck import *
 
-pygame.init()
-class Main():
-    def __init__(self, screen_width, screen_height):
-# create game window
-        self.SCREEN_WIDTH = screen_width
-        self.SCREEN_HEIGHT = screen_height
+SCREEN_WIDTH = SCREENHEIGHT = 0
+GRAVITY =2
+SPEED = 10
 
-        # create screen display
-        self.screen = None
-        pygame.display.set_caption("Brawler")
+class Fighter():
+    def __init__(self, x, y, flip, data, sprite_sheet, animation_steps, width, height):
+        self.size = data[0]
+        self.image_scale = data[1]
+        self.offset = data[2]
+        self.rect = pygame.Rect((x, y, 80, 100))
+        self.flip = flip
+        self.animation_list = self.load_images(sprite_sheet, animation_steps)
+        self.action = 0 # 0: idle 1: run 2: jump 3: attack1 4:attack2 5: hit 6: death
+        self.frame_index = 0
+        self.image = self.animation_list[self.action][self.frame_index]
+        self.update_time = pygame.time.get_ticks()
+        self.vel_y = 0
+        self.running = False
+        self.jump = False
+        self.attacking = False
+        self.attack_cool = 0
+        self.attack_type = 0
+        self.health = 100
+        self.dmg_mult = 1.0
+        self.temp_mult = 1.0
+        SCREEN_WIDTH = width
+        SCREENHEIGHT = height
+        # self.playerhand = deck.fill_hand(5,300)
+        # self.playerqueue = queue.Queue()
 
-        # set frame rate
-        self.clock = pygame.time.Clock()
-        self.FPS = 60
+    def load_images(self, sprite_sheet, animation_steps):
+        # extract images
+        animation_list = []
+        for y, animation in enumerate(animation_steps):
+            temp_img_list = []
+            for x in range(animation):
+                temp_img = sprite_sheet.subsurface(x * self.size, y * self.size, self.size, self.size)
+                temp_img_list.append(pygame.transform.scale(temp_img, (self.size * self.image_scale, self.size * self.image_scale)))
+            animation_list.append(temp_img_list)
+        return animation_list
 
-        # define colors
-        self.RED = (255, 0, 0)
-        self.YELLOW = (255, 255, 0)
-        self.WHITE = (255, 255, 255)
+    def move(self, screen_width, screen_height, surface, target):
+        dx = 0
+        dy = 0
+        self.running = False
+        self.attack_type = 0
 
-        # define fighter variables
-        self.player_chicken_SIZE = 200
-        self.player_chicken_SCALE = 1
-        self.player_chicken_OFFSET = [0, 0]
-        self.player_chicken_DATA = [self.player_chicken_SIZE, self.player_chicken_SCALE, self.player_chicken_OFFSET]
-        self.cpu_chicken_SIZE = 200
-        self.cpu_chicken_SCALE = 1
-        self.cpu_chicken_OFFSET = [0, 0]
-        self.cpu_chicken_DATA = [self.cpu_chicken_SIZE, self.cpu_chicken_SCALE, self.cpu_chicken_OFFSET]
+        # get key presses
+        key = pygame.key.get_pressed()
 
-        # load background image
-        cwd = os.getcwd()
-        bg_imagepath = (os.path.join(cwd, "background_3.jpg"))
-        self.bg_image = pygame.image.load(bg_imagepath).convert_alpha()
+        # can only perform other actions if not currently attacking
+        if self.attacking == False:
+            # movement
+            if key[pygame.K_a]:
+                dx = -SPEED
+                self.running = True
+            if key[pygame.K_d]:
+                dx = SPEED
+                self.running = True
+            # jump
+            if key[pygame.K_w] and self.jump == False:
+                self.vel_y = -30
+                self.jump = True
+            # attack
+            if key[pygame.K_r] or key[pygame.K_t]:
+                self.attack(surface, target)
+                # determine which attack type was used
+                if key[pygame.K_r]: # defining if "r" is clicked
+                    self.attack_type = 1 
+                if key[pygame.K_t]: # defining if "t" is clicked
+                    self.attack_type = 2
+            if key[pygame.K_j]:
+                pass
+        # apply gravity
+        self.vel_y += GRAVITY
+        dy += self.vel_y
 
-        # load sprite sheets
-        cwd = os.getcwd()
-        player_chicken_imagepath = (os.path.join(cwd, "chkn_sprite_shit.png"))
-        self.player_chicken_sheet = pygame.image.load(player_chicken_imagepath).convert_alpha()
+        # asure player stays on screen
+        # player won't go past the screen display
+        if self.rect.left + dx < 0:
+            dx = -self.rect.left
+        if self.rect.right + dx > screen_width:
+            dx = screen_width - self.rect.right
+        if self.rect.bottom + dy > screen_height - 110: # defining the ground
+            self.vel_y = 0
+            self.jump = False
+            dy = screen_height - 110 - self.rect.bottom
 
-        cpu_chicken_imagepath = (os.path.join(cwd, "cpu_sprite_shit.png"))
-        self.cpu_chicken_sheet = pygame.image.load(cpu_chicken_imagepath).convert_alpha()
+        # ensure players face each other
+        if target.rect.centerx > self.rect.centerx:
+            self.flip = False
+        else: 
+            self.flip = True
 
-        # define number of steps in each animation
-        self.player_chicken_ANIMATION_STEPS = [2, 7, 1, 5, 4, 4]
-        self.cpu_chicken_ANIMATION_STEPS = [2, 7, 1, 5, 4, 4]
+        if self.attack_cool > 0:
+            self.attack_cool -= 1
+
+        # update player position
+        self.rect.x += dx
+        self.rect.y += dy
+
+    # handle animation updates
+    def update(self):
+        # check what action player is performing
+        if self.attacking == True:
+            if self.attack_type == 1:
+                self.update_action(4) # 3: attack1
+            elif self.attack_type == 2:
+                self.update_action(5) # 4: attack2    
+        elif self.jump == True:
+            self.update_action(2) # 2: jump
+        elif self.running == True:
+            self.update_action(1) # 1: run
+        else:
+            self.update_action(0) # 0: idle
+        animation_cooldown = 50
+        # update image
+        self.image = self.animation_list[self.action][self.frame_index]
+        # check if enough time has passed since the last update 
+        if pygame.time.get_ticks() - self.update_time > animation_cooldown:
+            self.frame_index += 1
+            self.update_time = pygame.time.get_ticks()
+        # check if animation has finished
+        if self.frame_index >= len(self.animation_list[self.action]):
+            self.frame_index = 0
+            # check if an attack was executed
+            if self.action == 3 or self.action == 4:
+                self.attacking = False
+                self.attack_cool = 20
+            if self.action == 5:
+                self.hit = False
+                self.attacking = False
+                self.attack_cool = 20
+                
+    
+    # hitbox 
+    def attack(self, surface, target):
+        self.attacking = True
+        attacking_rect = pygame.Rect(self.rect.centerx - (2 * self.rect.width * self.flip), self.rect.y, 2 * self.rect.width, self.rect.height)
+        if attacking_rect.colliderect(target.rect):
+            target.health -= 10 * self.dmg_mult * self.temp_mult # fighter loses 10 health
+            target.take_hits()
+        pygame.draw.rect(surface, (0, 255, 0), attacking_rect)
+
+    def update_action(self, new_action):
+        # check if the new action is different to the previous one
+        if new_action != self.action:
+            self.action = new_action
+            # update the animation settings
+            self.frame_index = 0
+            self.update_time = pygame.time.get_ticks()
+
+    def draw(self, surface):
+        img = pygame.transform.flip(self.image, self.flip, False)
+        # pygame.draw.rect(surface, (255, 0 , 0), self.rect) # this is the hitbox
+        surface.blit(img, (self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
+
+    def play_combo_card(self, id,deck:Deck, target):
+        self.health -= deck.get_combo_dmg(id)
+        dx,dy,scale = deck.get_card_mvmt(id)
+        if target.rect.centerx > self.rect.centerx:
+            self.flip = False
+        else: 
+            self.flip = True
+        # update player position
+        self.rect.x += dx
+        self.rect.y += dy
+
+        # grab hitbox dim
+        x_scale,y_scale = deck.get_combo_range(id)
+        # create a hitbox for the move
+        if self.flip:
+            hitbox = pygame.Rect(self.rect.left - self.rect.width * x_scale, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height / 2 )
+        else:
+            hitbox = pygame.Rect(self.rect.right, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height / 2 )
+        hitbox.scale_by(x_scale,y_scale)
+
+        self.attacking = True
+        self.attack_type=2
+        self.update()
+        if hitbox.colliderect(target.rect):
+            target.health -= deck.get_combo_dmg(id) * self.dmg_mult
+            x_knockback, y_knockback, scale = deck.get_combo_knockback(id)
+            if target.flip:
+                target.rect.x += x_knockback
+                y_knockback -= y_knockback
+            else:
+                target.rect.x -= x_knockback
+                y_knockback -= y_knockback
         
-      # function for drawing background
-    def draw_bg(self):
-        scaled_bg = pygame.transform.scale(self.bg_image, (self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
-        self.screen.blit(scaled_bg, (0, 0))
+    def play_normal_card(self, id,deck:Deck, target):
+        if id == 17:
+            self.dmg_mult += 0.3
+        elif id == 18:
+            self.temp_mult = 2
+        else:
+            self.health -= deck.get_card_self_dmg(id)
+            dx,dy,scale = deck.get_card_mvmt(id)
+            if target.rect.centerx > self.rect.centerx:
+                self.flip = False
+            else: 
+                self.flip = True
+            # update player position
+            self.rect.x += dx
+            self.rect.y += dy
 
-    # function for drawing fighter health bars
-    def draw_health_bar(self, health, x, y):
-        self.ratio = health / 100
-        pygame.draw.rect(self.screen, self.WHITE, (x - 2, y - 2, 404, 34))
-        pygame.draw.rect(self.screen, self.RED, (x, y, 400, 30))
-        pygame.draw.rect(self.screen, self.YELLOW, (x, y, 400 * self.ratio, 30))
-        
-    def set_screen(self, screen, width, height):
-            self.screen = screen
-            self.SCREEN_WIDTH = width
-            self.SCREEN_HEIGHT = height
-            
-            # Now that we have the screen dimensions, initialize fighters
-            self.fighter_1 = Fighter(x=width // 4, y=height - 100, flip=False, data=self.player_chicken_DATA, sprite_sheet=self.player_chicken_sheet, animation_steps=self.player_chicken_ANIMATION_STEPS,width= width, height=height)
-            self.fighter_2 = CPU(3 * width // 4, height - 100, True, self.cpu_chicken_DATA, self.cpu_chicken_sheet, self.cpu_chicken_ANIMATION_STEPS, width, height)
-    # game loop
-    def game_loop(self):
+            # grab hitbox dim
+            x_scale,y_scale = deck.get_card_range(id)
+            # create a hitbox for the move
+            if self.flip:
+                hitbox = pygame.Rect(self.rect.left - self.rect.width * x_scale, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height)
+            else:
+                hitbox = pygame.Rect(self.rect.right, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height)
+            hitbox.scale_by(x_scale,y_scale)
 
-        if self.screen is None:
-            return
-        self.clock.tick(self.FPS)
-        #draw background
-        self.draw_bg()
-
-        # show player stats
-        self.draw_health_bar(self.fighter_1.health, 20, 20)
-        self.draw_health_bar(self.fighter_2.health, self.SCREEN_WIDTH - 420, 20)
-
-
-        # move fighters
-        self.fighter_1.move(self.SCREEN_WIDTH,self.SCREEN_HEIGHT-100, self.screen, self.fighter_2)
-        self.fighter_2.update_mvmt(self.SCREEN_WIDTH,self.SCREEN_HEIGHT-100,self.fighter_1, self.screen)
-
-        
-        # update fighters
-        self.fighter_1.update()
-        self.fighter_2.update()
-
-        # draw fighters
-        self.fighter_1.draw(self.screen)
-        self.fighter_2.draw(self.screen)
-
-
-        # event handler
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-
-        # update display
-        pygame.display.update()
+            self.attacking = True
+            self.attack_type=2
+            self.update()
+            if hitbox.colliderect(target.rect):
+                target.health -= deck.get_card_dmg(id) * self.dmg_mult
+                x_knockback, y_knockback, scale = deck.get_card_knockback(id)
+                if target.flip:
+                    target.rect.x += x_knockback
+                    y_knockback -= y_knockback
+                else:
+                    target.rect.x -= x_knockback
+                    y_knockback -= y_knockback
