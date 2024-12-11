@@ -86,7 +86,7 @@ class Main():
 
         # move fighters
         self.fighter_1.move(self.SCREEN_WIDTH,self.SCREEN_HEIGHT-100, self.screen, self.fighter_2)
-        self.fighter_2.update_mvmt(self.SCREEN_WIDTH,self.SCREEN_HEIGHT-100,self.fighter_1)
+        self.fighter_2.update_mvmt(self.SCREEN_WIDTH,self.SCREEN_HEIGHT-100,self.fighter_1, self.screen)
 
         
         # update fighters
