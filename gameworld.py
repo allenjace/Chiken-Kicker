@@ -107,20 +107,40 @@ class GameWorld:
                         card = self.common_cards[0]
                         self.running_cards.append(card)
                         self.card_display_times[card] = pygame.time.get_ticks()
-                    if (event.key == pygame.K_2 or event.key == pygame.K_KP_2) and len(self.running_cards) < 3:
+                    elif (event.key == pygame.K_2 or event.key == pygame.K_KP_2) and len(self.running_cards) < 3:
                         card = self.common_cards[1]
                         self.running_cards.append(card)
                         self.card_display_times[card] = pygame.time.get_ticks()
-                    if (event.key == pygame.K_3 or event.key == pygame.K_KP_3) and len(self.running_cards) < 3:
+                    elif (event.key == pygame.K_3 or event.key == pygame.K_KP_3) and len(self.running_cards) < 3:
                         card = self.common_cards[2]
                         self.running_cards.append(card)
                         self.card_display_times[card] = pygame.time.get_ticks()
-                    if (event.key == pygame.K_4 or event.key == pygame.K_KP_4) and len(self.running_cards) < 3:
+                    elif (event.key == pygame.K_4 or event.key == pygame.K_KP_4) and len(self.running_cards) < 3:
                         card = self.common_cards[3]
                         self.running_cards.append(card)
                         self.card_display_times[card] = pygame.time.get_ticks()
-                    if (event.key == pygame.K_5 or event.key == pygame.K_KP_5) and len(self.running_cards) < 3:
+                    elif (event.key == pygame.K_5 or event.key == pygame.K_KP_5) and len(self.running_cards) < 3:
                         card = self.common_cards[4]
+                        self.running_cards.append(card)
+                        self.card_display_times[card] = pygame.time.get_ticks()
+                    elif (event.key == pygame.K_6 or event.key == pygame.K_KP_6) and len(self.running_cards) < 3:
+                        card = self.random_cards[0]
+                        self.running_cards.append(card)
+                        self.card_display_times[card] = pygame.time.get_ticks()
+                    elif (event.key == pygame.K_7 or event.key == pygame.K_KP_7) and len(self.running_cards) < 3:
+                        card = self.random_cards[1]
+                        self.running_cards.append(card)
+                        self.card_display_times[card] = pygame.time.get_ticks()
+                    elif (event.key == pygame.K_8 or event.key == pygame.K_KP_8) and len(self.running_cards) < 3:
+                        card = self.random_cards[2]
+                        self.running_cards.append(card)
+                        self.card_display_times[card] = pygame.time.get_ticks()
+                    elif (event.key == pygame.K_9 or event.key == pygame.K_KP_9) and len(self.running_cards) < 3:
+                        card = self.random_cards[3]
+                        self.running_cards.append(card)
+                        self.card_display_times[card] = pygame.time.get_ticks()
+                    elif (event.key == pygame.K_0 or event.key == pygame.K_KP_0) and len(self.running_cards) < 3:
+                        card = self.random_cards[4]
                         self.running_cards.append(card)
                         self.card_display_times[card] = pygame.time.get_ticks()
                 # Handle mouse events
@@ -489,17 +509,23 @@ class GameWorld:
           
         keys = pygame.key.get_pressed()
         self.fill_random_cards()
-        if keys[pygame.K_SPACE] and len(self.running_cards) == 3:
+        if keys[pygame.K_SPACE]:
             if self.first_spacebarpress:
                 if len(self.carddeck.shuffled_deck) < 5:
                     self.carddeck.reset_deck()
                 self.first_spacebarpress = False
             else:
-                used_random_cards = []
+                used_random_cards = [])
+                combo_id = check_combo_l(self.running_cards)
+                if combo_id in self.carddeck.combos.keys():
+                    self.main_game.fighter_1.play_combo_card(combo_id,self.carddeck,self.main_game.fighter_2)
+                elif len(self.running_cards) == 1:
+                    self.main_game.fighter_1.play_normal_card(self.running_cards[0],self.carddeck,self.main_game.fighter_2)
+                    
                 # Track which random cards were used
                 for card_id in self.running_cards:
                     if card_id in self.random_cards:
-                        used_random_cards.append(card_id)
+                        used_random_cards.append(card_id
                 
                 # Remove used random cards
                 for card_id in used_random_cards:
