@@ -12,6 +12,7 @@ class Deck():
         self.shuffled_deck = []
         self.non_common_cards = []
         self.common_cards = []
+        self.combos = self.combo_list()
         
         # identify all common cards
         for card_id, card_data in self.deck.items():
