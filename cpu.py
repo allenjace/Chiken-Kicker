@@ -1,6 +1,8 @@
 import pygame
 from deck import *
 import math
+import random
+from fighter import *
 
 SCREEN_WIDTH = SCREENHEIGHT = 0
 GRAVITY =2
@@ -22,11 +24,18 @@ class CPU():
         self.running = False
         self.jump = False
         self.attacking = False
+        self.health = 100
+        self.previous_health = 100  # Add this to track health changes
         self.attack_cool = 0
         self.attack_type = 0
-        self.health = 100
+        self.health_thresholds = [90, 60, 30]  # Health points where cards should appear
         SCREEN_WIDTH = width
         SCREENHEIGHT = height
+        
+        self.hits = 0  # hit counter
+        self.display_card = None  # Store the currently displayed card
+        self.card_display_time = 0  # Timer for how long to show the card
+        self.deck = Deck(None)  # Create deck instance
 
     def load_images(self, sprite_sheet, animation_steps):
         # extract images
@@ -41,10 +50,27 @@ class CPU():
 
     def draw(self, surface):
         img = pygame.transform.flip(self.image, self.flip, False)
-        # pygame.draw.rect(surface, (255, 0 , 0), self.rect) # this is the hitbox
+        #pygame.draw.rect(surface, (255, 0 , 0), self.rect) # this is the hitbox
         surface.blit(img, (self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
+        
+        # Draw card if one is being displayed
+        if self.display_card and self.card_display_time > 0:
+            # Load and scale the card image
+            card_img = pygame.image.load(self.display_card[4])  # Get image path from card data
+            card_img = pygame.transform.scale(card_img, (100, 100))  # Scale card to reasonable size
+            
+            # Position card above CPU's head
+            card_x = self.rect.centerx - 30  # Center card horizontally
+            card_y = self.rect.top - 100  # Position above head
+            
+            surface.blit(card_img, (card_x, card_y))
+            
+            # Update card display timer
+            self.card_display_time -= 1
+            if self.card_display_time <= 0:
+                self.display_card = None
 
-    def update_mvmt(self, screen_width,screen_height,target):
+    def update_mvmt(self, screen_width,screen_height,target,surface):
         if not self.rect.colliderect(target.rect):
             dx = dy = 0
             dx, temp = target.rect.x - self.rect.x, target.rect.y - self.rect.y
@@ -58,15 +84,12 @@ class CPU():
             if self.rect.bottom >= screen_height - 10:  # Only jump if on ground
                 if target.jump and random.random() <= 0.30:  # 30% chance to mirror player jump
                     self.vel_y = -30
-                    self.jump = True 
+                    self.jump = True   
 
-            # Move along this normalized vector towards the player at current speed.
-            #if temp > 0 and self.jump ==False:
-                #self.jump = True
-                #self.vel_y -= 30
             
             self.vel_y += GRAVITY
-            dy = self.vel_y
+            dy += self.vel_y
+        
             # asure player stays on screen
             # player won't go past the screen display
             if self.rect.left + dx < 0:
@@ -83,10 +106,15 @@ class CPU():
                 self.flip = False
             else: 
                 self.flip = True
-
-            if self.attack_cool > 0:
+            if self.attack_cool == 0:
+                self.counter_attack(surface, target)
+            elif self.attack_cool > 0:
                 self.attack_cool -= 1
+                
+            # update cpu position
+            self.rect.x += dx
             self.rect.y += dy
+            
         # else:
         #     # attack
         #     self.rect.y += GRAVITY
@@ -96,9 +124,9 @@ class CPU():
         # check what action player is performing
         if self.attacking == True:
             if self.attack_type == 1:
-                self.update_action(3) # 3: attack1
+                self.update_action(4) # 3: attack1
             elif self.attack_type == 2:
-                self.update_action(4) # 4: attack2    
+                self.update_action(5) # 4: attack2    
         elif self.jump == True:
             self.update_action(2) # 2: jump
         elif self.running == True:
@@ -122,8 +150,7 @@ class CPU():
             if self.action == 5:
                 self.hit = False
                 self.attacking = False
-
-          
+                
     def update_action(self, new_action):
         # check if the new action is different to the previous one
         if new_action != self.action:
@@ -131,3 +158,32 @@ class CPU():
             # update the animation settings
             self.frame_index = 0
             self.update_time = pygame.time.get_ticks()
+            
+    def counter_attack(self, surface, target):
+        if not self.attacking and self.attack_cool == 0:
+            self.attacking = True
+            self.attack_type = random.choice([1, 2])  # Randomly choose attack type
+            self.attacking_rect = pygame.Rect(self.rect.centerx - (2 * self.rect.width * self.flip), self.rect.y, 2 * self.rect.width, self.rect.height)
+            if self.attacking_rect.colliderect(target.rect):
+                target.health -= 10
+            
+            pygame.draw.rect(surface, (255, 0, 0), self.attacking_rect)  # Red color for CPU attack
+            self.attack_cool = 45
+            
+    def take_hits(self): # cpu takes 3 hits
+         # Check if we've crossed any health thresholds
+        current_health = self.health
+        
+        # If health decreased
+        if current_health < self.previous_health:
+            # Check each 30-health interval
+            for threshold in [90, 60, 30]:
+                # If we crossed this threshold in this hit
+                if current_health == threshold:
+                        bucket_choice = random.randrange(1, 100)
+                        if bucket_choice:
+                            self.display_card = self.deck.draw_card(1, 18)
+                            self.card_display_time = 60
+                
+   
+    
