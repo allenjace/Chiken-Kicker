@@ -142,7 +142,7 @@ class Fighter():
         attacking_rect = pygame.Rect(self.rect.centerx - (2 * self.rect.width * self.flip), self.rect.y, 2 * self.rect.width, self.rect.height)
         if attacking_rect.colliderect(target.rect):
             target.health -= 10 * self.dmg_mult * self.temp_mult # fighter loses 10 health
-        
+            target.take_hits()
         pygame.draw.rect(surface, (0, 255, 0), attacking_rect)
 
     def update_action(self, new_action):
