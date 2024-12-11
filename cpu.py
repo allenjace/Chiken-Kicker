@@ -49,8 +49,6 @@ class CPU():
             dx = dy = 0
             dx, temp = target.rect.x - self.rect.x, target.rect.y - self.rect.y
             dist = math.hypot(dx, dy)
-            dx = dx / dist  # Normalize.
-            self.rect.x += dx * SPEED
             
             if dist != 0: # if distance is not zero because float division by zero error
                 dx = dx / dist  # Normalize.
