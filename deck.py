@@ -56,8 +56,8 @@ class Deck():
 
 
         # legendary careds
-        deck[len(deck)+1] = [17, "Roids", "Jump Higher, Run Faster Kick Harder","Legendary",'card images/legendary_card.png'] # add a multiplier to outgoing dmg
-        deck[len(deck)+1] = [18, "Lucky Strike", "Deal double damage on your next hit","Legendary",'card images/legendary_card.png'] # add a multiplier to outgoing dmg
+        deck[len(deck)+1] = [17, "Roids", "Jump Higher, Run Faster Kick Harder","Legendary",'card images/legendary_card.png',[0,0,1],[0,0,1], [0,0], 0, 0] # add a multiplier to outgoing dmg
+        deck[len(deck)+1] = [18, "Lucky Strike", "Deal double damage on your next hit","Legendary",'card images/legendary_card.png',[0,0,1],[0,0,1], [0,0], 0, 0] # add a multiplier to outgoing dmg
         
         # Make copies of non-common cards
         original_length = len(deck)
