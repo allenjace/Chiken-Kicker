@@ -51,11 +51,21 @@ class CPU():
             dist = math.hypot(dx, dy)
             dx = dx / dist  # Normalize.
             self.rect.x += dx * SPEED
+            
+            if dist != 0: # if distance is not zero because float division by zero error
+                dx = dx / dist  # Normalize.
+                self.rect.x += dx * SPEED
+            
+            # Check if player is jumping and respond with 30% chance
+            if self.rect.bottom >= screen_height - 10:  # Only jump if on ground
+                if target.jump and random.random() <= 0.30:  # 30% chance to mirror player jump
+                    self.vel_y = -30
+                    self.jump = True 
 
             # Move along this normalized vector towards the player at current speed.
-            if temp > 0 and self.jump ==False:
-                self.jump = True
-                self.vel_y -= 30
+            #if temp > 0 and self.jump ==False:
+                #self.jump = True
+                #self.vel_y -= 30
             
             self.vel_y += GRAVITY
             dy = self.vel_y
