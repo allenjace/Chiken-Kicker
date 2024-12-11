@@ -515,7 +515,7 @@ class GameWorld:
                     self.carddeck.reset_deck()
                 self.first_spacebarpress = False
             else:
-                used_random_cards = [])
+                used_random_cards = []
                 combo_id = check_combo_l(self.running_cards)
                 if combo_id in self.carddeck.combos.keys():
                     self.main_game.fighter_1.play_combo_card(combo_id,self.carddeck,self.main_game.fighter_2)
@@ -525,7 +525,7 @@ class GameWorld:
                 # Track which random cards were used
                 for card_id in self.running_cards:
                     if card_id in self.random_cards:
-                        used_random_cards.append(card_id
+                        used_random_cards.append(card_id)
                 
                 # Remove used random cards
                 for card_id in used_random_cards:
