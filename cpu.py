@@ -41,7 +41,7 @@ class CPU():
 
     def draw(self, surface):
         img = pygame.transform.flip(self.image, self.flip, False)
-        pygame.draw.rect(surface, (255, 0 , 0), self.rect) # this is the hitbox
+        # pygame.draw.rect(surface, (255, 0 , 0), self.rect) # this is the hitbox
         surface.blit(img, (self.rect.x - (self.offset[0] * self.image_scale), self.rect.y - (self.offset[1] * self.image_scale)))
 
     def update_mvmt(self, screen_width,screen_height,target):
