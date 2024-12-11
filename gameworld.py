@@ -734,12 +734,12 @@ class PauseMenu: # class for the pause menu
         
         if self.options_active:
             if self.selected_option == 0:  # Music toggle
-                # if current_time - self.last_click_time >= self.click_cooldown:
+                if current_time - self.last_click_time >= self.click_cooldown:
                 #     if self.game.sound.music.get_volume() == 0:
                 #         self.game.sound.music.set_volume(0.5)  # Set to default volume
                 #     else:
                 #         self.game.sound.music.set_volume(0)
-                    # self.last_click_time = current_time
+                    self.last_click_time = current_time
             elif self.selected_option == 1:  # Back
                 if current_time - self.last_toggle_time >= self.toggle_cooldown:
                     self.options_active = False
