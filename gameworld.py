@@ -163,14 +163,6 @@ class GameWorld:
             self.pause_menu.toggle_menu()
             return
 
-
-            # Clear running cards and display times
-            self.running_cards.clear()
-            self.card_display_times.clear()
-            return
-
-            
-
     def handle_mouse(self, event, pressed):
         # Handle left click (card selection)
         if pressed and event.button == 1 and len(self.running_cards) < 3:
