@@ -107,9 +107,9 @@ class Fighter():
         # check what action player is performing
         if self.attacking == True:
             if self.attack_type == 1:
-                self.update_action(3) # 3: attack1
+                self.update_action(4) # 3: attack1
             elif self.attack_type == 2:
-                self.update_action(4) # 4: attack2    
+                self.update_action(5) # 4: attack2    
         elif self.jump == True:
             self.update_action(2) # 2: jump
         elif self.running == True:
@@ -190,7 +190,6 @@ class Fighter():
             else:
                 target.rect.x -= x_knockback
                 y_knockback -= y_knockback
-        self.attacking = False
         
     def play_normal_card(self, id,deck:Deck, target):
         if id == 17:
@@ -212,9 +211,9 @@ class Fighter():
             x_scale,y_scale = deck.get_card_range(id)
             # create a hitbox for the move
             if self.flip:
-                hitbox = pygame.Rect(self.rect.left - self.rect.width * x_scale, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height )
+                hitbox = pygame.Rect(self.rect.left - self.rect.width * x_scale, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height)
             else:
-                hitbox = pygame.Rect(self.rect.right, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height )
+                hitbox = pygame.Rect(self.rect.right, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height)
             hitbox.scale_by(x_scale,y_scale)
 
             self.attacking = True
@@ -229,4 +228,3 @@ class Fighter():
                 else:
                     target.rect.x -= x_knockback
                     y_knockback -= y_knockback
-            self.attacking = False
