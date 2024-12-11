@@ -204,13 +204,12 @@ class OptionsMenu(Menu):
             self.game.drawText('Options:', 75, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 300)
             self.game.drawText('Resolution', 35, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 150)
             self.game.drawText('Fullscreen', 35, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 - 75)
-            self.game.drawText('Mute', 35, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 25)
+            self.game.drawText('Music coming soon!', 35, self.game.DISPLAY_W / 2, self.game.DISPLAY_H / 2 + 25)
             self.game.drawText('Back', 25, self.backbuttonx, self.backbuttony - 5)
             
             self.drawCursor()
             self.blitScreen()
             self.checkMouse()
-            self.toggleMusic()
             self.display_settings()
             pygame.display.update()
 
@@ -301,53 +300,7 @@ class OptionsMenu(Menu):
         
         if pygame.mouse.get_pressed()[0] == 0:
             self.mouseclick = False
-            
-    def toggleMusic(self):
-        # Create the button surface
-        self.font = pygame.font.Font(None, 25)
-        self.buttonsurface = pygame.Surface((150, 50))
-        self.clickcooldown = 500
-        
-        # Set the button text based on game's mute state
-        if not self.game.mute_music:
-            self.text = self.font.render("Mute", True, (255, 255, 255))
-        else:
-            self.text = self.font.render("Unmute", True, (255, 255, 255))
 
-        self.centertext = self.text.get_rect(center=(self.buttonsurface.get_width() / 2, self.buttonsurface.get_height() / 2))
-        self.buttonrect = pygame.Rect((self.game.DISPLAY_W / 2) + 75, (self.game.DISPLAY_H / 2) + 5, 150, 50)
-        
-        # Draw the button
-        self.buttonsurface.fill((0, 205, 255))
-        self.buttonsurface.blit(self.text, self.centertext)
-        pygame.draw.rect(self.game.window, (255, 255, 255), self.buttonrect)
-        self.game.window.blit(self.buttonsurface, (self.buttonrect.x, self.buttonrect.y))
-
-        # Get the mouse position and detect clicks
-        self.pos = pygame.mouse.get_pos()
-        self.currentclick = pygame.time.get_ticks()
-        
-        # Check if the button is clicked
-        if pygame.mouse.get_pressed()[0] == 1 and self.buttonrect.collidepoint(self.pos) and self.currentclick - self.lastclick > self.clickcooldown:
-            # Toggle the game's mute state
-            self.game.mute_music = not self.game.mute_music
-            
-            # Toggle music based on the state
-            if self.game.mute_music:
-                pygame.mixer.music.pause()
-                print("Music paused (muted)")
-            else:
-                pygame.mixer.music.unpause()
-                print("Music unpaused")
-            
-             # Re-render the text with the new state
-            button_text = "Unmute" if self.game.mute_music else "Mute"
-            self.text = self.font.render(button_text, True, (255, 255, 255))
-            self.lastclick = self.currentclick
-        
-        # Reset the click detection
-        if pygame.mouse.get_pressed()[0] == 0:
-            self.mouseclick = False
 
     #checks if the mouse is over text
     def mouseOnText(self, text, x, y, font_size):
