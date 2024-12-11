@@ -1,6 +1,7 @@
 import pygame 
 import os
 from fighter import Fighter
+from cpu import *
 
 pygame.init()
 class Main():
