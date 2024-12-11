@@ -427,7 +427,7 @@ class GameWorld:
         self.addcommon_cards()
         self.first_spacebarpress = True
         self.load_next_card()
-        self.game.sound.music.play(1)
+        # self.game.sound.music.play(1)
         self.start_ticks = pygame.time.get_ticks()
         self.running_cards.clear()
         self.card_positions.clear()
@@ -668,7 +668,7 @@ class PauseMenu: # class for the pause menu
 
     def draw_options_menu(self):
         # Update music option text based on current state
-        self.options_menu_options[0] = f"Music: {'On' if not self.game.sound.music.get_volume() == 0 else 'Off'}"
+        # self.options_menu_options[0] = f"Music: {'On' if not self.game.sound.music.get_volume() == 0 else 'Off'}"
         
         # Draw options title
         title_surface = self.font.render("Options", True, (255, 255, 255))
@@ -734,12 +734,12 @@ class PauseMenu: # class for the pause menu
         
         if self.options_active:
             if self.selected_option == 0:  # Music toggle
-                if current_time - self.last_click_time >= self.click_cooldown:
-                    if self.game.sound.music.get_volume() == 0:
-                        self.game.sound.music.set_volume(0.5)  # Set to default volume
-                    else:
-                        self.game.sound.music.set_volume(0)
-                    self.last_click_time = current_time
+                # if current_time - self.last_click_time >= self.click_cooldown:
+                #     if self.game.sound.music.get_volume() == 0:
+                #         self.game.sound.music.set_volume(0.5)  # Set to default volume
+                #     else:
+                #         self.game.sound.music.set_volume(0)
+                    # self.last_click_time = current_time
             elif self.selected_option == 1:  # Back
                 if current_time - self.last_toggle_time >= self.toggle_cooldown:
                     self.options_active = False
