@@ -212,9 +212,9 @@ class Fighter():
             x_scale,y_scale = deck.get_card_range(id)
             # create a hitbox for the move
             if self.flip:
-                hitbox = pygame.Rect(self.rect.left - self.rect.width * x_scale, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height / 2 )
+                hitbox = pygame.Rect(self.rect.left - self.rect.width * x_scale, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height )
             else:
-                hitbox = pygame.Rect(self.rect.right, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height / 2 )
+                hitbox = pygame.Rect(self.rect.right, self.rect.centery - (y_scale * self.rect.height), self.rect.width * x_scale, self.rect.height )
             hitbox.scale_by(x_scale,y_scale)
 
             self.attacking = True
