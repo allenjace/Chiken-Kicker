@@ -1,7 +1,7 @@
 import pygame 
 import os
-from fighter import Fighter
 from cpu import *
+from fighter import Fighter
 
 pygame.init()
 class Main():
@@ -24,14 +24,14 @@ class Main():
         self.WHITE = (255, 255, 255)
 
         # define fighter variables
-        self.WARRIOR_SIZE = 162
-        self.WARRIOR_SCALE = 4
-        self.WARRIOR_OFFSET = [72, 56]
-        self.WARRIOR_DATA = [self.WARRIOR_SIZE, self.WARRIOR_SCALE, self.WARRIOR_OFFSET]
-        self.WIZARD_SIZE = 250
-        self.WIZARD_SCALE = 3
-        self.WIZARD_OFFSET = [112, 107]
-        self.WIZARD_DATA = [self.WIZARD_SIZE, self.WIZARD_SCALE, self.WIZARD_OFFSET]
+        self.player_chicken_SIZE = 200
+        self.player_chicken_SCALE = 1
+        self.player_chicken_OFFSET = [0, 0]
+        self.player_chicken_DATA = [self.player_chicken_SIZE, self.player_chicken_SCALE, self.player_chicken_OFFSET]
+        self.cpu_chicken_SIZE = 200
+        self.cpu_chicken_SCALE = 1
+        self.cpu_chicken_OFFSET = [0, 0]
+        self.cpu_chicken_DATA = [self.cpu_chicken_SIZE, self.cpu_chicken_SCALE, self.cpu_chicken_OFFSET]
 
         # load background image
         cwd = os.getcwd()
@@ -40,14 +40,15 @@ class Main():
 
         # load sprite sheets
         cwd = os.getcwd()
-        warrior_imagepath = (os.path.join(cwd, "warrior.png"))
-        self.warrior_sheet = pygame.image.load(warrior_imagepath).convert_alpha()
-        wizard_imagepath = (os.path.join(cwd, "wizard.png"))
-        self.wizard_sheet = pygame.image.load(wizard_imagepath).convert_alpha()
+        player_chicken_imagepath = (os.path.join(cwd, "chkn_sprite_shit.png"))
+        self.player_chicken_sheet = pygame.image.load(player_chicken_imagepath).convert_alpha()
+
+        cpu_chicken_imagepath = (os.path.join(cwd, "cpu_sprite_shit.png"))
+        self.cpu_chicken_sheet = pygame.image.load(cpu_chicken_imagepath).convert_alpha()
 
         # define number of steps in each animation
-        self.WARRIOR_ANIMATION_STEPS = [10, 8, 1, 7, 7, 3, 7]
-        self.WIZARD_ANIMATION_STEPS = [8, 8, 1, 8, 8, 3, 7]
+        self.player_chicken_ANIMATION_STEPS = [2, 7, 1, 5, 4, 4]
+        self.cpu_chicken_ANIMATION_STEPS = [2, 7, 1, 5, 4, 4]
         
       # function for drawing background
     def draw_bg(self):
@@ -67,8 +68,8 @@ class Main():
             self.SCREEN_HEIGHT = height
             
             # Now that we have the screen dimensions, initialize fighters
-            self.fighter_1 = Fighter(x=width // 4, y=height - 100, flip=False, data=self.WARRIOR_DATA, sprite_sheet=self.warrior_sheet, animation_steps=self.WARRIOR_ANIMATION_STEPS,width= width, height=height)
-            self.fighter_2 = CPU(3 * width // 4, height - 300, True, self.WIZARD_DATA, self.wizard_sheet, self.WIZARD_ANIMATION_STEPS, width, height)
+            self.fighter_1 = Fighter(x=width // 4, y=height - 100, flip=False, data=self.player_chicken_DATA, sprite_sheet=self.player_chicken_sheet, animation_steps=self.player_chicken_ANIMATION_STEPS,width= width, height=height)
+            self.fighter_2 = CPU(3 * width // 4, height - 100, True, self.cpu_chicken_DATA, self.cpu_chicken_sheet, self.cpu_chicken_ANIMATION_STEPS, width, height)
     # game loop
     def game_loop(self):
 
